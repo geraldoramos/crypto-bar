@@ -1,18 +1,18 @@
-const {app, BrowserWindow, Menu, protocol, ipcMain, Tray} = require('electron');
+const {app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray, Notification} = require('electron');
 const log = require('electron-log');
 const {autoUpdater} = require("electron-updater");
 const path = require('path')
 const axios = require('axios')
 let tray = null
-let iconPath = path.join(__dirname,'assets/icon.png');
+let iconBtc = path.join(__dirname,'assets/btc.png');
+let iconEth = path.join(__dirname,'assets/eth.png');
+let iconLtc = path.join(__dirname,'assets/ltc.png');
+const Store = require('electron-store');
+const store = new Store();
+const prompt = require('./prompt/lib');
 
 //-------------------------------------------------------------------
 // Logging
-//
-// THIS SECTION IS NOT REQUIRED
-//
-// This logging setup is not required for auto-updates to work,
-// but it sure makes debugging easier :)
 //-------------------------------------------------------------------
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
@@ -20,8 +20,6 @@ log.info('App starting...');
 
 //-------------------------------------------------------------------
 // Define the menu
-//
-// THIS SECTION IS NOT REQUIRED
 //-------------------------------------------------------------------
 let template = []
 if (process.platform === 'darwin') {
@@ -44,21 +42,19 @@ if (process.platform === 'darwin') {
 }
 
 
-// Crypto api
-const ticker = async(currency) => {
-  let request = await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json')
-  return request.data.bpi[currency].rate
+//-------------------------------------------------------------------
+// Crypto API
+//-------------------------------------------------------------------
+const ticker = async() => {
+  let BTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD,BRL,EUR,GBP`)
+  let ETH = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD,BRL,EUR,GBP`)
+  let LTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD,BRL,EUR,GBP`)
+  return {BTC:BTC.data,ETH:ETH.data,LTC:LTC.data}
 }
 
 
 //-------------------------------------------------------------------
-// Open a window that displays the version
-//
-// THIS SECTION IS NOT REQUIRED
-//
-// This isn't required for auto-updates to work, but it's easier
-// for the app to show a window than to have to click "About" to see
-// that updates are working.
+// Open a window that displays the version when user press CMD+D
 //-------------------------------------------------------------------
 let win;
 
@@ -100,23 +96,63 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 app.on('ready', function() {
-  // Create the Menu
-  // const menu = Menu.buildFromTemplate(template);
-  // Menu.setApplicationMenu(menu);
-  // createDefaultWindow();
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+  
 
+  // Default values for currency and crypto type
   let currency = 'USD'
+  let type = 'BTC'
+
   
     app.dock.hide();
-  
-    tray = new Tray(iconPath)
-  
+    tray = new Tray(iconBtc)
     tray.setTitle("Fetching...")
+
   
     const contextMenu = Menu.buildFromTemplate([{
-        label: 'Crypto Bar 1.1',
+        label: `Crypto Bar ${app.getVersion()}`,
         type: 'normal',
         enabled: false
+      },
+      {
+        label: 'Set new alert',
+        type: 'normal',
+        click() {
+          newAlert()
+        },
+      },
+      {
+        label: 'Reset alerts',
+        type: 'normal',
+        click() {
+          store.set('notifyList',[])
+        },
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'BTC',
+        type: 'radio',
+        checked: true,
+        click() {
+          changeType('BTC')
+        },
+      },
+      {
+        label: 'ETH',
+        type: 'radio',
+        click() {
+          changeType('ETH')
+        },
+      },
+      {
+        label: 'LTC',
+        type: 'radio',
+        click() {
+          changeType('LTC')
+        },
       },
       {
         type: 'separator'
@@ -144,6 +180,13 @@ app.on('ready', function() {
         }
       },
       {
+        label: 'BRL',
+        type: 'radio',
+        click() {
+          changeCurrency('BRL')
+        }
+      },
+      {
         type: 'separator'
       },
       {
@@ -154,20 +197,72 @@ app.on('ready', function() {
         }
       }
     ])
-  
+
+    globalShortcut.register('CommandOrControl+D', () => {
+      createDefaultWindow()
+    })
+
+    let newAlert = () =>{
+      prompt({
+        title: 'Set New Price Alert',
+        label: 'Rule:',
+        type: 'input', // 'select' or 'input, defaults to 'input'
+    })
+    .then((r) => {
+      if(r !== null && r.split(' ').length == 4){
+        let oldList = store.get('notifyList') || []
+        let options = r.split(' ')
+        oldList.push ({type:options[0].toUpperCase(),rule:options[1],target:options[2], currency:options[3].toUpperCase()})
+        store.set('notifyList', oldList);
+      }
+
+    })
+    .catch(console.error);
+
+    }
+
     const updatePrice = async() => {
-      rate = await ticker(currency)
+      rate = await ticker()
       switch (currency) {
         case 'USD':
-          tray.setTitle(`$${rate}`)
+          tray.setTitle(`$${rate[type][currency]}`)
           break;
         case 'EUR':
-          tray.setTitle(`€${rate}`)
+          tray.setTitle(`€${rate[type][currency]}`)
           break;
         case 'GBP':
-          tray.setTitle(`£${rate}`)
+          tray.setTitle(`£${rate[type][currency]}`)
           break;
+        case 'BRL':
+          tray.setTitle(`R$${rate[type][currency]}`)
+          break;          
       }
+
+      notifyList = store.get('notifyList');
+
+      let sendNotify = notifyList.filter(x=>{
+        return x.rule === 'above' ? x.target < rate[x.type][x.currency] : x.target > rate[x.type][x.currency]
+      })
+
+      let notification;
+      for(item of sendNotify){
+
+        notification = new Notification({
+          title: "Crypto price alert",
+          body:`${item.type} is now ${item.rule} ${item.target} ${item.currency}`
+        })
+        notification.show()
+
+        // notifier.notify({
+        //   'title': `Crypto Price Alert`,
+        //   'message': `${item.type} is now ${item.rule} ${item.target} ${item.currency}`,
+        //   'icon': path.join(__dirname,  'assets/mac_icon.icns'),
+        // });
+        // remove item from notify list
+        let index = notifyList.indexOf(item);
+        notifyList.splice(index, 1);
+      }
+      store.set('notifyList',notifyList);
     }
     // First update
     updatePrice()
@@ -177,13 +272,32 @@ app.on('ready', function() {
       currency = newcurrency
       updatePrice()
     }
+
+    const changeType= (newType) => {
+      type = newType
+      updatePrice()
+      switch (newType) {
+        case 'BTC':
+        tray.setImage(iconBtc)
+          break;
+        case 'ETH':
+        tray.setImage(iconEth)
+          break;
+        case 'LTC':
+        tray.setImage(iconLtc)
+          break;          
+        default:
+          break;
+      }
+      
+    }
   
-    // update rates every 60 seconds
-    setInterval(() => {
+    // update prices every 60 seconds
+    setInterval(() => {      
       updatePrice()
     }, 60000);
   
-    tray.setToolTip('Bitcoin Status')
+    tray.setToolTip('Crypto Bar')
     tray.setContextMenu(contextMenu)
 
 });
@@ -191,44 +305,7 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
-//
-// CHOOSE one of the following options for Auto updates
-//
 
-//-------------------------------------------------------------------
-// Auto updates - Option 1 - Simplest version
-//
-// This will immediately download an update, then install when the
-// app quits.
-//-------------------------------------------------------------------
 app.on('ready', function()  {
   autoUpdater.checkForUpdatesAndNotify();
 });
-
-//-------------------------------------------------------------------
-// Auto updates - Option 2 - More control
-//
-// For details about these events, see the Wiki:
-// https://github.com/electron-userland/electron-builder/wiki/Auto-Update#events
-//
-// The app doesn't need to listen to any events except `update-downloaded`
-//
-// Uncomment any of the below events to listen for them.  Also,
-// look in the previous section to see them being used.
-//-------------------------------------------------------------------
-// app.on('ready', function()  {
-//   autoUpdater.checkForUpdates();
-// });
-// autoUpdater.on('checking-for-update', () => {
-// })
-// autoUpdater.on('update-available', (info) => {
-// })
-// autoUpdater.on('update-not-available', (info) => {
-// })
-// autoUpdater.on('error', (err) => {
-// })
-// autoUpdater.on('download-progress', (progressObj) => {
-// })
-// autoUpdater.on('update-downloaded', (info) => {
-//   autoUpdater.quitAndInstall();  
-// })
