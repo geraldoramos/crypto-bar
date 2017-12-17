@@ -1,0 +1,41 @@
+{
+  "name": "crypto-bar",
+  "version": "1.0.1",
+  "main": "main.js",
+  "description": "A menu bar app that updates bitcoin price",
+  "author": "Geraldo Ramos",
+  "scripts": {
+    "publish": "build -p always"
+  },
+  "devDependencies": {
+    "electron": "^1.7.9",
+    "electron-builder": "^19.49.0"
+  },
+  "dependencies": {
+    "axios": "^0.17.1",
+    "electron-log": "^1.3.0",
+    "electron-updater": "^2.16.1",
+    "path": "^0.12.7"
+  },
+  "build": {
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "geraldoramos",
+        "repo": "crypto-bar-app"
+      }
+    ],
+    "appId": "com.github.geraldoramos.crypto-bar-app",
+    "mac": {
+      "category": "your.app.category.type",
+      "icon": "assets/mac_icon.icns",
+      "target": [
+        "zip",
+        "dmg"
+      ]
+    },
+    "dmg": {
+      "background": "assets/background.tiff"
+    }
+  }
+}
