@@ -10,7 +10,7 @@ A menu bar application built using [Electron](https://github.com/electron) that 
 
 ### Downloading the app
 
-To download the app, click [here](https://github.com/geraldoramos/crypto-bar/releases) (currently available for macOS only)
+To download the app, click [here](https://github.com/geraldoramos/crypto-bar/releases/latest) (currently available for macOS only)
 
 ### Build the app locally for development (PR's welcome)
 
