@@ -17,10 +17,15 @@ git clone https://github.com/geraldoramos/crypto-bar.git
 cd crypto-bar
  ```
 
-**Then install and launch using NPM:**
+**Then install and launch:**
 ```
-npm install && npm start
+npm install && electron .
  ```
+
+ If the command `electron` is not working, make sure to install electron globally:
+ ```
+npm install electron -g
+```
 
 
 ### License
