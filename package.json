@@ -1,6 +1,6 @@
 {
   "name": "crypto-bar",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "main": "main.js",
   "description": "A menu bar app that provides cryptocurrencies prices in real-time",
   "author": "Geraldo Ramos",
@@ -13,12 +13,14 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "electron-google-analytics": "0.0.24",
     "electron-log": "^1.3.0",
     "electron-prompt": "^0.5.0",
     "electron-store": "^1.3.0",
     "electron-updater": "^2.16.1",
     "node-notifier": "^5.1.2",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "raven": "^2.3.0"
   },
   "build": {
     "publish": [

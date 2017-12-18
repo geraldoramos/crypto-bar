@@ -10,6 +10,8 @@ let iconLtc = path.join(__dirname,'assets/ltc.png');
 const Store = require('electron-store');
 const store = new Store();
 const prompt = require('./prompt/lib');
+const Analytics  = require('electron-google-analytics');
+const analytics = new Analytics.default('UA-111389782-1');
 
 //-------------------------------------------------------------------
 // Logging
@@ -17,6 +19,8 @@ const prompt = require('./prompt/lib');
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
+var Raven = require('raven');
+Raven.config('https://e254805a5b5149d48d6561ae035dd19c:26a8736adf7c4ae08464ac3483eca1d2@sentry.io/260576').install();
 
 //-------------------------------------------------------------------
 // Define the menu
@@ -203,6 +207,14 @@ app.on('ready', function() {
     })
 
     let newAlert = () =>{
+
+      analytics.event('App', 'createdAlert', { evLabel: `version ${app.getVersion()}`})
+      .then((response) => {
+        log.info(response)
+      }).catch((err) => {
+        log.error(err)
+      });
+
       prompt({
         title: 'Set New Price Alert',
         label: 'Rule:',
@@ -218,8 +230,14 @@ app.on('ready', function() {
 
     })
     .catch(console.error);
-
     }
+
+    analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`})
+    .then((response) => {
+      log.info(response)
+    }).catch((err) => {
+      log.error(err)
+    });
 
     const updatePrice = async() => {
       rate = await ticker()
@@ -253,11 +271,6 @@ app.on('ready', function() {
         })
         notification.show()
 
-        // notifier.notify({
-        //   'title': `Crypto Price Alert`,
-        //   'message': `${item.type} is now ${item.rule} ${item.target} ${item.currency}`,
-        //   'icon': path.join(__dirname,  'assets/mac_icon.icns'),
-        // });
         // remove item from notify list
         let index = notifyList.indexOf(item);
         notifyList.splice(index, 1);
@@ -271,6 +284,12 @@ app.on('ready', function() {
     const changeCurrency = (newcurrency) => {
       currency = newcurrency
       updatePrice()
+      analytics.event('App', 'changedCurrency', { evLabel: `version ${app.getVersion()}`})
+      .then((response) => {
+        log.info(response)
+      }).catch((err) => {
+        log.error(err)
+      });
     }
 
     const changeType= (newType) => {
@@ -289,6 +308,13 @@ app.on('ready', function() {
         default:
           break;
       }
+
+      analytics.event('App', 'changedType', { evLabel: `version ${app.getVersion()}`})
+      .then((response) => {
+        log.info(response)
+      }).catch((err) => {
+        log.error(err)
+      });
       
     }
   
