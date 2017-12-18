@@ -50,14 +50,14 @@ if (process.platform === 'darwin') {
 // Crypto API
 //-------------------------------------------------------------------
 const ticker = async () => {
-    const requests = Config.tickers.map(async ({ ticker }) => {
-        const url = `https://min-api.cryptocompare.com/data/price?fsym=${ticker}&tsyms=USD,BRL,EUR,GBP`;
+    const requests = Config.tickers.map(async ({ symbol }) => {
+        const url = `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=USD,BRL,EUR,GBP`;
         const res = await axios.get(url);
-        return { ticker, data: res.data };
+        return { symbol, data: res.data };
     });
     const responses = await axios.all(requests)
     return responses.reduce((accum, res) => {
-        accum[res.ticker] = res.data;
+        accum[res.symbol] = res.data;
         return accum;
     }, {});
 }
@@ -120,11 +120,11 @@ app.on('ready', function () {
     tray = new Tray(path.join(__dirname, 'assets', 'btc.png'))
     tray.setTitle("Fetching...")
 
-    const cryptoTemplates = Config.tickers.map(({ ticker, label }) => ({
+    const cryptoTemplates = Config.tickers.map(({ symbol, label }) => ({
         label,
         type: 'radio',
         click() {
-            changeType(ticker);
+            changeType(symbol);
         }
     }));
 
@@ -286,7 +286,7 @@ app.on('ready', function () {
         type = newType
         updatePrice()
 
-        const crypto = Config.tickers.filter(x => type === x.ticker)[0];
+        const crypto = Config.tickers.filter(x => type === x.symbol)[0];
         if (crypto && crypto.image && crypto.image.length > 0) {
             const image = path.join(__dirname, 'assets', crypto.image);
             tray.setImage(image);

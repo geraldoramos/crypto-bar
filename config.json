@@ -1,22 +1,25 @@
 {
     "tickers": [{
         "label": "BTC",
-        "ticker": "BTC",
+        "symbol": "BTC",
         "image": "btc.png"
     }, {
         "label": "ETH",
-        "ticker": "ETH",
+        "symbol": "ETH",
         "image": "eth.png"
     }, {
         "label": "LTC",
-        "ticker": "LTC",
+        "symbol": "LTC",
         "image": "ltc.png"
     }, {
         "label": "XRP",
-        "ticker": "XRP",
+        "symbol": "XRP",
         "image": "xrp.png"
     }, {
         "label": "ADA",
-        "ticker": "ADA"
+        "symbol": "ADA"
+    }],
+    "currencies": [{
+        
     }]
 }
