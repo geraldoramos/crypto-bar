@@ -20,6 +20,20 @@
         "symbol": "ADA"
     }],
     "currencies": [{
-        
+        "label": "USD",
+        "symbol": "USD",
+        "prefix": "$"
+    }, {
+        "label": "EUR",
+        "symbol": "EUR",
+        "prefix": "€"
+    }, {
+        "label": "GBP",
+        "symbol": "GBP",
+        "prefix": "£"
+    }, {
+        "label": "BRL",
+        "symbol": "BRL",
+        "prefix": "R$"
     }]
 }

@@ -50,8 +50,9 @@ if (process.platform === 'darwin') {
 // Crypto API
 //-------------------------------------------------------------------
 const ticker = async () => {
+    const currencies = Config.currencies.map(c => c.symbol).join(',');
     const requests = Config.tickers.map(async ({ symbol }) => {
-        const url = `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=USD,BRL,EUR,GBP`;
+        const url = `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=${currencies}`;
         const res = await axios.get(url);
         return { symbol, data: res.data };
     });
@@ -115,7 +116,6 @@ app.on('ready', function () {
     let currency = 'USD'
     let type = 'BTC'
 
-
     app.dock.hide();
     tray = new Tray(path.join(__dirname, 'assets', 'btc.png'))
     tray.setTitle("Fetching...")
@@ -125,6 +125,15 @@ app.on('ready', function () {
         type: 'radio',
         click() {
             changeType(symbol);
+        }
+    }));
+
+    const currencyTemplates = Config.currencies.map(({ symbol, label }) => ({
+        label,
+        type: 'radio',
+        checked: currency === symbol,
+        click() {
+            changeCurrency(symbol)
         }
     }));
 
@@ -150,32 +159,7 @@ app.on('ready', function () {
         type: 'separator'
     }, ...cryptoTemplates, {
         type: 'separator'
-    }, {
-        label: 'USD',
-        type: 'radio',
-        checked: true,
-        click() {
-            changeCurrency('USD')
-        }
-    }, {
-        label: 'EUR',
-        type: 'radio',
-        click() {
-            changeCurrency('EUR')
-        }
-    }, {
-        label: 'GBP',
-        type: 'radio',
-        click() {
-            changeCurrency('GBP')
-        }
-    }, {
-        label: 'BRL',
-        type: 'radio',
-        click() {
-            changeCurrency('BRL')
-        }
-    }, {
+    }, ...currencyTemplates, {
         type: 'separator'
     }, {
         label: 'Quit',
@@ -231,20 +215,10 @@ app.on('ready', function () {
 
     const updatePrice = async () => {
         rate = await ticker()
-        switch (currency) {
-            case 'USD':
-                tray.setTitle(`$${rate[type][currency]}`)
-                break;
-            case 'EUR':
-                tray.setTitle(`€${rate[type][currency]}`)
-                break;
-            case 'GBP':
-                tray.setTitle(`£${rate[type][currency]}`)
-                break;
-            case 'BRL':
-                tray.setTitle(`R$${rate[type][currency]}`)
-                break;
-        }
+        const prefix = Config.currencies
+            .filter(c => c.symbol === currency)
+            .map(c => c.prefix)[0] || '';
+        tray.setTitle(`${prefix}${rate[type][currency]}`)        
 
         notifyList = store.get('notifyList') || [];
 
