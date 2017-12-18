@@ -53,10 +53,10 @@ if (process.platform === 'darwin') {
 // Crypto API
 //-------------------------------------------------------------------
 const ticker = async () => {
-    let BTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD,BRL,EUR,GBP`)
-    let ETH = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD,BRL,EUR,GBP`)
-    let LTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD,BRL,EUR,GBP`)
-    let XRP = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=XRP&tsyms=USD,BRL,EUR,GBP`)
+    let BTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD,BRL,EUR,GBP,KRW`)
+    let ETH = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD,BRL,EUR,GBP,KRW`)
+    let LTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD,BRL,EUR,GBP,KRW`)
+    let XRP = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=XRP&tsyms=USD,BRL,EUR,GBP,KRW`)
 
     return {BTC: BTC.data, ETH: ETH.data, LTC: LTC.data, XRP: XRP.data}
 }
@@ -204,6 +204,13 @@ app.on('ready', function () {
             }
         },
         {
+            label: 'KRW',
+            type: 'radio',
+            click() {
+                changeCurrency('KRW')
+            }
+        },
+        {
             type: 'separator'
         },
         {
@@ -271,6 +278,9 @@ app.on('ready', function () {
                 break;
             case 'BRL':
                 tray.setTitle(`R$${rate[type][currency]}`)
+                break;
+            case 'KRW':
+                tray.setTitle(`₩${rate[type][currency]}`)
                 break;
         }
 
