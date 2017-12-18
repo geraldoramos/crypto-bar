@@ -4,15 +4,12 @@ const {autoUpdater} = require("electron-updater");
 const path = require('path')
 const axios = require('axios')
 let tray = null
-let iconBtc = path.join(__dirname, 'assets/btc.png');
-let iconEth = path.join(__dirname, 'assets/eth.png');
-let iconLtc = path.join(__dirname, 'assets/ltc.png');
-let iconXrp = path.join(__dirname, 'assets/xrp.png');
 const Store = require('electron-store');
 const store = new Store();
 const prompt = require('./prompt/lib');
 const Analytics = require('electron-google-analytics');
 const analytics = new Analytics.default('UA-111389782-1');
+const Config = require('./config.json');
 
 //-------------------------------------------------------------------
 // Logging
@@ -53,12 +50,16 @@ if (process.platform === 'darwin') {
 // Crypto API
 //-------------------------------------------------------------------
 const ticker = async () => {
-    let BTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD,BRL,EUR,GBP`)
-    let ETH = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD,BRL,EUR,GBP`)
-    let LTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD,BRL,EUR,GBP`)
-    let XRP = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=XRP&tsyms=USD,BRL,EUR,GBP`)
-
-    return {BTC: BTC.data, ETH: ETH.data, LTC: LTC.data, XRP: XRP.data}
+    const requests = Config.tickers.map(async ({ ticker }) => {
+        const url = `https://min-api.cryptocompare.com/data/price?fsym=${ticker}&tsyms=USD,BRL,EUR,GBP`;
+        const res = await axios.get(url);
+        return { ticker, data: res.data };
+    });
+    const responses = await axios.all(requests)
+    return responses.reduce((accum, res) => {
+        accum[res.ticker] = res.data;
+        return accum;
+    }, {});
 }
 
 
@@ -116,104 +117,75 @@ app.on('ready', function () {
 
 
     app.dock.hide();
-    tray = new Tray(iconBtc)
+    tray = new Tray(path.join(__dirname, 'assets', 'btc.png'))
     tray.setTitle("Fetching...")
 
+    const cryptoTemplates = Config.tickers.map(({ ticker, label }) => ({
+        label,
+        type: 'radio',
+        click() {
+            changeType(ticker);
+        }
+    }));
 
-    const contextMenu = Menu.buildFromTemplate([{
+    const contextMenuTemplate = [{
         label: `Crypto Bar ${app.getVersion()}`,
         type: 'normal',
         enabled: false
+    }, {
+        label: 'Set new alert',
+        type: 'normal',
+        click() {
+            newAlert()
+        },
     },
-        {
-            label: 'Set new alert',
-            type: 'normal',
-            click() {
-                newAlert()
-            },
+    {
+        label: 'Reset alerts',
+        type: 'normal',
+        click() {
+            store.set('notifyList', [])
         },
-        {
-            label: 'Reset alerts',
-            type: 'normal',
-            click() {
-                store.set('notifyList', [])
-            },
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'BTC',
-            type: 'radio',
-            checked: true,
-            click() {
-                changeType('BTC')
-            },
-        },
-        {
-            label: 'ETH',
-            type: 'radio',
-            click() {
-                changeType('ETH')
-            },
-        },
-        {
-            label: 'LTC',
-            type: 'radio',
-            click() {
-                changeType('LTC')
-            },
-        },
-        {
-            label: 'XRP',
-            type: 'radio',
-            click() {
-                changeType('XRP')
-            },
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'USD',
-            type: 'radio',
-            checked: true,
-            click() {
-                changeCurrency('USD')
-            }
-        },
-        {
-            label: 'EUR',
-            type: 'radio',
-            click() {
-                changeCurrency('EUR')
-            }
-        },
-        {
-            label: 'GBP',
-            type: 'radio',
-            click() {
-                changeCurrency('GBP')
-            }
-        },
-        {
-            label: 'BRL',
-            type: 'radio',
-            click() {
-                changeCurrency('BRL')
-            }
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Quit',
-            accelerator: 'CommandOrControl+Q',
-            click() {
-                app.quit()
-            }
+    },
+    {
+        type: 'separator'
+    }, ...cryptoTemplates, {
+        type: 'separator'
+    }, {
+        label: 'USD',
+        type: 'radio',
+        checked: true,
+        click() {
+            changeCurrency('USD')
         }
-    ])
+    }, {
+        label: 'EUR',
+        type: 'radio',
+        click() {
+            changeCurrency('EUR')
+        }
+    }, {
+        label: 'GBP',
+        type: 'radio',
+        click() {
+            changeCurrency('GBP')
+        }
+    }, {
+        label: 'BRL',
+        type: 'radio',
+        click() {
+            changeCurrency('BRL')
+        }
+    }, {
+        type: 'separator'
+    }, {
+        label: 'Quit',
+        accelerator: 'CommandOrControl+Q',
+        click() {
+            app.quit()
+        }
+    }];
+
+    const contextMenu = Menu.buildFromTemplate(contextMenuTemplate);
 
     globalShortcut.register('CommandOrControl+D', () => {
         createDefaultWindow()
@@ -274,7 +246,7 @@ app.on('ready', function () {
                 break;
         }
 
-        notifyList = store.get('notifyList');
+        notifyList = store.get('notifyList') || [];
 
         let sendNotify = notifyList.filter(x => {
             return x.rule === 'above' ? x.target < rate[x.type][x.currency] : x.target > rate[x.type][x.currency]
@@ -313,21 +285,13 @@ app.on('ready', function () {
     const changeType = (newType) => {
         type = newType
         updatePrice()
-        switch (newType) {
-            case 'BTC':
-                tray.setImage(iconBtc)
-                break;
-            case 'ETH':
-                tray.setImage(iconEth)
-                break;
-            case 'LTC':
-                tray.setImage(iconLtc)
-                break;
-            case 'XRP':
-                tray.setImage(iconXrp)
-                break;
-            default:
-                break;
+
+        const crypto = Config.tickers.filter(x => type === x.ticker)[0];
+        if (crypto && crypto.image && crypto.image.length > 0) {
+            const image = path.join(__dirname, 'assets', crypto.image);
+            tray.setImage(image);
+        } else {
+            tray.setImage(path.join(__dirname, 'assets', 'blank.png'));
         }
 
         analytics.event('App', 'changedType', {evLabel: `version ${app.getVersion()}`})
