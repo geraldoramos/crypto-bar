@@ -1,6 +1,6 @@
 {
   "name": "crypto-bar",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "main": "main.js",
   "description": "A menu bar app that provides cryptocurrencies prices in real-time",
   "author": "Geraldo Ramos",
