@@ -53,10 +53,10 @@ if (process.platform === 'darwin') {
 // Crypto API
 //-------------------------------------------------------------------
 const ticker = async () => {
-    let BTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD,BRL,EUR,GBP`)
-    let ETH = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD,BRL,EUR,GBP`)
-    let LTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD,BRL,EUR,GBP`)
-    let XRP = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=XRP&tsyms=USD,BRL,EUR,GBP`)
+    let BTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD,BRL,EUR,GBP,MXN`)
+    let ETH = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD,BRL,EUR,GBP,MXN`)
+    let LTC = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD,BRL,EUR,GBP,MXN`)
+    let XRP = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=XRP&tsyms=USD,BRL,EUR,GBP,MXN`)
 
     return {BTC: BTC.data, ETH: ETH.data, LTC: LTC.data, XRP: XRP.data}
 }
@@ -204,6 +204,13 @@ app.on('ready', function () {
             }
         },
         {
+            label: 'MXN',
+            type: 'radio',
+            click() {
+                changeCurrency('MXN')
+            }
+        },
+        {
             type: 'separator'
         },
         {
@@ -271,6 +278,9 @@ app.on('ready', function () {
                 break;
             case 'BRL':
                 tray.setTitle(`R$${rate[type][currency]}`)
+                break;
+            case 'MXN':
+                tray.setTitle(`M$${rate[type][currency]}`)
                 break;
         }
 
