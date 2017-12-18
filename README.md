@@ -16,8 +16,8 @@ To download the app, click [here](https://github.com/geraldoramos/crypto-bar/rel
 
 **First, clone this repo:**
  ```
-git clone https://github.com/geraldoramos/bitcoin-status.git
-cd bitcoin-status
+git clone https://github.com/geraldoramos/crypto-bar.git
+cd crypto-bar
  ```
 
 **Then install and launch using NPM:**
