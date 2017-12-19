@@ -1,6 +1,6 @@
-const {app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray} = require('electron');
+const { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } = require('electron');
 const log = require('electron-log');
-const {autoUpdater} = require("electron-updater");
+const { autoUpdater } = require("electron-updater");
 const path = require('path')
 let tray = null
 const prompt = require('./prompt');
@@ -15,9 +15,9 @@ const Raven = require('raven');
 // capture user's unique machine ID
 let clientID;
 try {
-clientID = machineIdSync()
+    clientID = machineIdSync()
 } catch (error) {
-clientID = 'no-machineid-detected'
+    clientID = 'no-machineid-detected'
 }
 
 //-------------------------------------------------------------------
@@ -37,8 +37,7 @@ if (process.platform === 'darwin') {
     const name = app.getName();
     template.unshift({
         label: name,
-        submenu: [
-            {
+        submenu: [{
                 label: 'About ' + name,
                 role: 'about'
             },
@@ -102,7 +101,7 @@ autoUpdater.on('update-downloaded', (info) => {
     updateAvailable = false
 });
 
-app.on('ready', function () {
+app.on('ready', function() {
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
 
@@ -111,17 +110,17 @@ app.on('ready', function () {
     let type = 'BTC'
 
     app.dock.hide();
-    tray = new Tray(path.join(__dirname, 'assets', 'btc.png'))
+    tray = new Tray(path.join(__dirname, 'assets', 'btcTemplate.png'))
     tray.setTitle("Fetching...")
 
     const getImage = type => {
         crypto = Config.tickers.filter(x => type === x.symbol)[0];
         if (crypto && crypto.image && crypto.image.length > 0) {
-          return path.join(__dirname, 'assets', crypto.image)
+            return path.join(__dirname, 'assets', crypto.image)
         } else {
-          return path.join(__dirname, 'assets', 'blank.png')
+            return path.join(__dirname, 'assets', 'blank.png')
         }
-      }
+    }
 
     const cryptoTemplates = Config.tickers.map(({ symbol, label }) => ({
         label,
@@ -142,58 +141,58 @@ app.on('ready', function () {
     }));
 
     const contextMenuTemplate = [{
-        label: `Crypto Bar ${app.getVersion()}`,
-        type: 'normal',
-        enabled: false
-      }, {
-        label: 'Update Available (restart)',
-        visible: false,
-        click() {
-          app.relaunch({
-            args: process.argv.slice(1).concat(['--relaunch'])
-          })
-          app.exit(0)
-        }
-      },
+            label: `Crypto Bar ${app.getVersion()}`,
+            type: 'normal',
+            enabled: false
+        }, {
+            label: 'Update Available (restart)',
+            visible: false,
+            click() {
+                app.relaunch({
+                    args: process.argv.slice(1).concat(['--relaunch'])
+                })
+                app.exit(0)
+            }
+        },
 
-      {
-        type: 'separator'
-      }, {
-        label: 'Set new alert',
-        type: 'normal',
-        click() {
-          newAlert()
+        {
+            type: 'separator'
+        }, {
+            label: 'Set new alert',
+            type: 'normal',
+            click() {
+                newAlert()
+            },
         },
-      },
-      {
-        label: 'Reset alerts',
-        type: 'normal',
-        click() {
-          notification.reset()
+        {
+            label: 'Reset alerts',
+            type: 'normal',
+            click() {
+                notification.reset()
+            },
         },
-      },
-      {
-        type: 'separator'
-      }, ...cryptoTemplates, {
-        type: 'separator'
-      }, ...currencyTemplates, {
-        type: 'separator'
-      }, {
-        label: 'Quit',
-        accelerator: 'CommandOrControl+Q',
-        click() {
-          app.quit()
+        {
+            type: 'separator'
+        }, ...cryptoTemplates, {
+            type: 'separator'
+        }, ...currencyTemplates, {
+            type: 'separator'
+        }, {
+            label: 'Quit',
+            accelerator: 'CommandOrControl+Q',
+            click() {
+                app.quit()
+            }
         }
-      }
     ];
 
     const contextMenu = Menu.buildFromTemplate(contextMenuTemplate);
     // show update available menu if there is an update. Check for updates every minute
-    if(updateAvailable){
+    if (updateAvailable) {
         contextMenu.items[1].visible = true
     }
     setInterval(() => {
-        if(updateAvailable){
+        if (updateAvailable) {
             contextMenu.items[1].visible = true
         }
     }, 6000);
@@ -204,18 +203,18 @@ app.on('ready', function () {
 
     let newAlert = () => {
 
-        analytics.event('App', 'createdAlert', {evLabel: `version ${app.getVersion()}`,clientID})
+        analytics.event('App', 'createdAlert', { evLabel: `version ${app.getVersion()}`, clientID })
             .then((response) => {
                 log.info(response)
             }).catch((err) => {
-            log.error(err)
-        });
+                log.error(err)
+            });
 
         prompt({
-            title: 'Set New Price Alert',
-            label: 'Rule:',
-            type: 'input', // 'select' or 'input, defaults to 'input'
-        })
+                title: 'Set New Price Alert',
+                label: 'Rule:',
+                type: 'input', // 'select' or 'input, defaults to 'input'
+            })
             .then((r) => {
                 if (r !== null && r.split(' ').length == 4) {
                     let options = r.split(' ')
@@ -226,18 +225,18 @@ app.on('ready', function () {
             .catch(console.error);
     }
 
-    analytics.event('App', 'initialLoad', {evLabel: `version ${app.getVersion()}`,clientID})
+    analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`, clientID })
         .then((response) => {
             log.info(response)
         }).catch((err) => {
-        log.error(err)
-    });
+            log.error(err)
+        });
 
 
     // First update
-    pricing.update(currency,type).then(data =>{
-        tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
-        notification.send(data.rates).then(result=>{
+    pricing.update(currency, type).then(data => {
+        tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
+        notification.send(data.rates).then(result => {
             log.info(result)
         })
     })
@@ -248,54 +247,54 @@ app.on('ready', function () {
     const changeCurrency = (newcurrency) => {
         currency = newcurrency
 
-        pricing.update(currency,type).then(data =>{
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
-            notification.send(data.rates).then(result=>{
+        pricing.update(currency, type).then(data => {
+            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
+            notification.send(data.rates).then(result => {
                 log.info(result)
             })
         })
-        analytics.event('App', 'changedCurrency', {evLabel: `version ${app.getVersion()}`,clientID})
+        analytics.event('App', 'changedCurrency', { evLabel: `version ${app.getVersion()}`, clientID })
             .then((response) => {
                 log.info(response)
             }).catch((err) => {
-            log.error(err)
-        });
+                log.error(err)
+            });
     }
 
     // Handle type change
     const changeType = (newType) => {
         type = newType
-            pricing.update(currency,type).then(data =>{
-        tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
-        tray.setImage(getImage(type));
-        notification.send(data.rates).then(result=>{
-            log.info(result)
+        pricing.update(currency, type).then(data => {
+            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
+            tray.setImage(getImage(type));
+            notification.send(data.rates).then(result => {
+                log.info(result)
+            })
         })
-    })
-        analytics.event('App', 'changedType', {evLabel: `version ${app.getVersion()}`,clientID})
+        analytics.event('App', 'changedType', { evLabel: `version ${app.getVersion()}`, clientID })
             .then((response) => {
                 log.info(response)
             }).catch((err) => {
-            log.error(err)
-        });
+                log.error(err)
+            });
 
     }
 
     // update prices every 60 seconds
     setInterval(() => {
-        pricing.update(currency,type).then((data) =>{
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
-            notification.send(data.rates).then(result=>{
+        pricing.update(currency, type).then((data) => {
+            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
+            notification.send(data.rates).then(result => {
                 log.info(result)
             })
         })
 
-        analytics.event('App', 'priceUpdate', {evLabel: `version ${app.getVersion()}`,clientID})
-        .then((response) => {
-            log.info(response)
-        }).catch((err) => {
-        log.error(err)
-    });
+        analytics.event('App', 'priceUpdate', { evLabel: `version ${app.getVersion()}`, clientID })
+            .then((response) => {
+                log.info(response)
+            }).catch((err) => {
+                log.error(err)
+            });
     }, 60000);
 
     tray.setToolTip('Crypto Bar')
@@ -306,6 +305,6 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
-app.on('ready', function () {
+app.on('ready', function() {
     autoUpdater.checkForUpdatesAndNotify();
 });
