@@ -36,5 +36,10 @@
         "label": "BRL",
         "symbol": "BRL",
         "prefix": "R$"
-    }]
+    }, {
+        "label": "MXN",
+        "symbol": "MXN",
+        "prefix": "$"
+    }
+  ]
 }
