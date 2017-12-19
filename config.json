@@ -1,0 +1,39 @@
+{
+    "tickers": [{
+        "label": "BTC",
+        "symbol": "BTC",
+        "image": "btc.png"
+    }, {
+        "label": "ETH",
+        "symbol": "ETH",
+        "image": "eth.png"
+    }, {
+        "label": "LTC",
+        "symbol": "LTC",
+        "image": "ltc.png"
+    }, {
+        "label": "XRP",
+        "symbol": "XRP",
+        "image": "xrp.png"
+    }, {
+        "label": "ADA",
+        "symbol": "ADA"
+    }],
+    "currencies": [{
+        "label": "USD",
+        "symbol": "USD",
+        "prefix": "$"
+    }, {
+        "label": "EUR",
+        "symbol": "EUR",
+        "prefix": "€"
+    }, {
+        "label": "GBP",
+        "symbol": "GBP",
+        "prefix": "£"
+    }, {
+        "label": "BRL",
+        "symbol": "BRL",
+        "prefix": "R$"
+    }]
+}
