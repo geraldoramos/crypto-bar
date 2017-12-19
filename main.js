@@ -50,6 +50,8 @@ if (process.platform === 'darwin') {
 //-------------------------------------------------------------------
 let win;
 
+let updateAvailable = false
+
 function sendStatusToWindow(text) {
     log.info(text);
     win.webContents.send('message', text);
@@ -70,9 +72,13 @@ autoUpdater.on('checking-for-update', () => {
 })
 autoUpdater.on('update-available', (info) => {
     sendStatusToWindow('Update available.');
+    updateAvailable = true
 })
+
+
 autoUpdater.on('update-not-available', (info) => {
     sendStatusToWindow('Update not available.');
+    updateAvailable = false
 })
 autoUpdater.on('error', (err) => {
     sendStatusToWindow('Error in auto-updater. ' + err);
@@ -82,16 +88,17 @@ autoUpdater.on('download-progress', (progressObj) => {
     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     sendStatusToWindow(log_message);
+    updateAvailable = false
 })
 
 autoUpdater.on('update-downloaded', (info) => {
     sendStatusToWindow('Update downloaded');
+    updateAvailable = false
 });
 
 app.on('ready', function () {
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
-
 
     // Default values for currency and crypto type
     let currency = 'USD'
@@ -101,9 +108,19 @@ app.on('ready', function () {
     tray = new Tray(path.join(__dirname, 'assets', 'btc.png'))
     tray.setTitle("Fetching...")
 
+    const getImage = type => {
+        crypto = Config.tickers.filter(x => type === x.symbol)[0];
+        if (crypto && crypto.image && crypto.image.length > 0) {
+          return path.join(__dirname, 'assets', crypto.image)
+        } else {
+          return path.join(__dirname, 'assets', 'blank.png')
+        }
+      }
+
     const cryptoTemplates = Config.tickers.map(({ symbol, label }) => ({
         label,
         type: 'radio',
+        icon: getImage(symbol),
         click() {
             changeType(symbol);
         }
@@ -122,37 +139,61 @@ app.on('ready', function () {
         label: `Crypto Bar ${app.getVersion()}`,
         type: 'normal',
         enabled: false
-    }, {
+      }, {
+        label: 'Update Available (restart)',
+        visible: false,
+        click() {
+          app.relaunch({
+            args: process.argv.slice(1).concat(['--relaunch'])
+          })
+          app.exit(0)
+        }
+      },
+
+      {
+        type: 'separator'
+      }, {
         label: 'Set new alert',
         type: 'normal',
         click() {
-            newAlert()
+          newAlert()
         },
-    },
-    {
+      },
+      {
         label: 'Reset alerts',
         type: 'normal',
         click() {
-            store.set('notifyList', [])
+          store.set('notifyList', [])
         },
-    },
-    {
+      },
+      {
         type: 'separator'
-    }, ...cryptoTemplates, {
+      }, ...cryptoTemplates, {
         type: 'separator'
-    }, ...currencyTemplates, {
+      }, ...currencyTemplates, {
         type: 'separator'
-    }, {
+      }, {
         label: 'Quit',
         accelerator: 'CommandOrControl+Q',
         click() {
-            app.quit()
+          app.quit()
         }
-    }];
+      }
+    ];
 
     const contextMenu = Menu.buildFromTemplate(contextMenuTemplate);
 
-    globalShortcut.register('CommandOrControl+D', () => {
+    // show update available menu if there is an update. Check for updates every minute
+    if(updateAvailable){
+        contextMenu.items[1].visible = true
+    }
+    setInterval(() => {
+        if(updateAvailable){
+            contextMenu.items[1].visible = true
+        }
+    }, 6000);
+
+    globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
         createDefaultWindow()
     })
 
@@ -197,7 +238,7 @@ app.on('ready', function () {
     // First update
     pricing.update(currency,type,tray,store)
 
-    // When currency is changed
+    // Handle currency change
     const changeCurrency = (newcurrency) => {
         currency = newcurrency
         pricing.update(currency,type,tray,store)
@@ -209,18 +250,11 @@ app.on('ready', function () {
         });
     }
 
+    // Handle type change
     const changeType = (newType) => {
         type = newType
         pricing.update(currency,type,tray,store)
-
-        const crypto = Config.tickers.filter(x => type === x.symbol)[0];
-        if (crypto && crypto.image && crypto.image.length > 0) {
-            const image = path.join(__dirname, 'assets', crypto.image);
-            tray.setImage(image);
-        } else {
-            tray.setImage(path.join(__dirname, 'assets', 'blank.png'));
-        }
-
+        tray.setImage(getImage(type));
         analytics.event('App', 'changedType', {evLabel: `version ${app.getVersion()}`})
             .then((response) => {
                 log.info(response)
@@ -239,6 +273,7 @@ app.on('ready', function () {
     tray.setContextMenu(contextMenu)
 
 });
+
 app.on('window-all-closed', () => {
     app.quit();
 });
