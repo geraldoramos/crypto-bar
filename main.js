@@ -180,7 +180,6 @@ app.on('ready', function () {
     ];
 
     const contextMenu = Menu.buildFromTemplate(contextMenuTemplate);
-
     // show update available menu if there is an update. Check for updates every minute
     if(updateAvailable){
         contextMenu.items[1].visible = true
@@ -265,7 +264,14 @@ app.on('ready', function () {
     // update prices every 60 seconds
     setInterval(() => {
         pricing.update(currency,type,tray,store)
+        analytics.event('App', 'priceUpdate', {evLabel: `version ${app.getVersion()}`})
+        .then((response) => {
+            log.info(response)
+        }).catch((err) => {
+        log.error(err)
+    });
     }, 60000);
+
     tray.setToolTip('Crypto Bar')
     tray.setContextMenu(contextMenu)
 });
