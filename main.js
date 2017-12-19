@@ -3,13 +3,22 @@ const log = require('electron-log');
 const {autoUpdater} = require("electron-updater");
 const path = require('path')
 let tray = null
-const Store = require('electron-store');
-const store = new Store();
 const prompt = require('./prompt');
 const pricing = require('./pricing_service');
+const notification = require('./notification_service');
 const Analytics = require('electron-google-analytics');
 const analytics = new Analytics.default('UA-111389782-1');
 const Config = require('./config.json');
+const machineIdSync = require('node-machine-id').machineIdSync
+const Raven = require('raven');
+
+// capture user's unique machine ID
+let clientID;
+try {
+clientID = machineIdSync()
+} catch (error) {
+clientID = 'no-machineid-detected'
+}
 
 //-------------------------------------------------------------------
 // Logging
@@ -17,7 +26,6 @@ const Config = require('./config.json');
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
-var Raven = require('raven');
 Raven.config('https://e254805a5b5149d48d6561ae035dd19c:26a8736adf7c4ae08464ac3483eca1d2@sentry.io/260576').install();
 
 //-------------------------------------------------------------------
@@ -161,7 +169,7 @@ app.on('ready', function () {
         label: 'Reset alerts',
         type: 'normal',
         click() {
-          store.set('notifyList', [])
+          notification.reset()
         },
       },
       {
@@ -196,7 +204,7 @@ app.on('ready', function () {
 
     let newAlert = () => {
 
-        analytics.event('App', 'createdAlert', {evLabel: `version ${app.getVersion()}`})
+        analytics.event('App', 'createdAlert', {evLabel: `version ${app.getVersion()}`,clientID})
             .then((response) => {
                 log.info(response)
             }).catch((err) => {
@@ -210,36 +218,43 @@ app.on('ready', function () {
         })
             .then((r) => {
                 if (r !== null && r.split(' ').length == 4) {
-                    let oldList = store.get('notifyList') || []
                     let options = r.split(' ')
-                    oldList.push({
-                        type: options[0].toUpperCase(),
-                        rule: options[1],
-                        target: options[2],
-                        currency: options[3].toUpperCase()
-                    })
-                    store.set('notifyList', oldList);
+                    notification.set(options)
                 }
 
             })
             .catch(console.error);
     }
 
-    analytics.event('App', 'initialLoad', {evLabel: `version ${app.getVersion()}`})
+    analytics.event('App', 'initialLoad', {evLabel: `version ${app.getVersion()}`,clientID})
         .then((response) => {
             log.info(response)
         }).catch((err) => {
         log.error(err)
     });
 
+
     // First update
-    pricing.update(currency,type,tray,store)
+    pricing.update(currency,type).then(data =>{
+        tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
+        notification.send(data.rates).then(result=>{
+            log.info(result)
+        })
+    })
+
+    // pricing.update(currency,type,tray,store)
 
     // Handle currency change
     const changeCurrency = (newcurrency) => {
         currency = newcurrency
-        pricing.update(currency,type,tray,store)
-        analytics.event('App', 'changedCurrency', {evLabel: `version ${app.getVersion()}`})
+
+        pricing.update(currency,type).then(data =>{
+            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
+            notification.send(data.rates).then(result=>{
+                log.info(result)
+            })
+        })
+        analytics.event('App', 'changedCurrency', {evLabel: `version ${app.getVersion()}`,clientID})
             .then((response) => {
                 log.info(response)
             }).catch((err) => {
@@ -250,9 +265,14 @@ app.on('ready', function () {
     // Handle type change
     const changeType = (newType) => {
         type = newType
-        pricing.update(currency,type,tray,store)
+            pricing.update(currency,type).then(data =>{
+        tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
         tray.setImage(getImage(type));
-        analytics.event('App', 'changedType', {evLabel: `version ${app.getVersion()}`})
+        notification.send(data.rates).then(result=>{
+            log.info(result)
+        })
+    })
+        analytics.event('App', 'changedType', {evLabel: `version ${app.getVersion()}`,clientID})
             .then((response) => {
                 log.info(response)
             }).catch((err) => {
@@ -263,8 +283,14 @@ app.on('ready', function () {
 
     // update prices every 60 seconds
     setInterval(() => {
-        pricing.update(currency,type,tray,store)
-        analytics.event('App', 'priceUpdate', {evLabel: `version ${app.getVersion()}`})
+        pricing.update(currency,type).then((data) =>{
+            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`) 
+            notification.send(data.rates).then(result=>{
+                log.info(result)
+            })
+        })
+
+        analytics.event('App', 'priceUpdate', {evLabel: `version ${app.getVersion()}`,clientID})
         .then((response) => {
             log.info(response)
         }).catch((err) => {
