@@ -1,4 +1,4 @@
-# <a href="https://www.producthunt.com/posts/crypto-bar"><img src="https://s3.amazonaws.com/cryptobar/phbadge.png" width="35px" height="35px"></img></a> Crypto Bar
+# <a target="_blank" href="https://www.producthunt.com/posts/crypto-bar"><img src="https://s3.amazonaws.com/cryptobar/phbadge.png" width="35px" height="35px"></img></a> Crypto Bar
 > A menu bar application built using [Electron](https://github.com/electron) that updates cryptocurrencies prices in real-time and allows users to create alerts for price changes. Pricing data is updated every minute.
 
 <p align="center"><img src="https://s3.amazonaws.com/cryptobar/crypto-bar.gif" width="600"/></p>
