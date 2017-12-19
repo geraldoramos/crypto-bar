@@ -1,12 +1,12 @@
-const {app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray, Notification} = require('electron');
+const {app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray} = require('electron');
 const log = require('electron-log');
 const {autoUpdater} = require("electron-updater");
 const path = require('path')
-const axios = require('axios')
 let tray = null
 const Store = require('electron-store');
 const store = new Store();
-const prompt = require('./prompt/lib');
+const prompt = require('./prompt');
+const pricing = require('./pricing_service');
 const Analytics = require('electron-google-analytics');
 const analytics = new Analytics.default('UA-111389782-1');
 const Config = require('./config.json');
@@ -44,25 +44,6 @@ if (process.platform === 'darwin') {
         ]
     })
 }
-
-
-//-------------------------------------------------------------------
-// Crypto API
-//-------------------------------------------------------------------
-const ticker = async () => {
-    const currencies = Config.currencies.map(c => c.symbol).join(',');
-    const requests = Config.tickers.map(async ({ symbol }) => {
-        const url = `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=${currencies}`;
-        const res = await axios.get(url);
-        return { symbol, data: res.data };
-    });
-    const responses = await axios.all(requests)
-    return responses.reduce((accum, res) => {
-        accum[res.symbol] = res.data;
-        return accum;
-    }, {});
-}
-
 
 //-------------------------------------------------------------------
 // Open a window that displays the version when user press CMD+D
@@ -213,41 +194,13 @@ app.on('ready', function () {
         log.error(err)
     });
 
-    const updatePrice = async () => {
-        rate = await ticker()
-        const prefix = Config.currencies
-            .filter(c => c.symbol === currency)
-            .map(c => c.prefix)[0] || '';
-        tray.setTitle(`${prefix}${rate[type][currency]}`)        
-
-        notifyList = store.get('notifyList') || [];
-
-        let sendNotify = notifyList.filter(x => {
-            return x.rule === 'above' ? x.target < rate[x.type][x.currency] : x.target > rate[x.type][x.currency]
-        })
-
-        let notification;
-        for (item of sendNotify) {
-
-            notification = new Notification({
-                title: "Crypto price alert",
-                body: `${item.type} is now ${item.rule} ${item.target} ${item.currency}`
-            })
-            notification.show()
-
-            // remove item from notify list
-            let index = notifyList.indexOf(item);
-            notifyList.splice(index, 1);
-        }
-        store.set('notifyList', notifyList);
-    }
     // First update
-    updatePrice()
+    pricing.update(currency,type,tray,store)
 
     // When currency is changed
     const changeCurrency = (newcurrency) => {
         currency = newcurrency
-        updatePrice()
+        pricing.update(currency,type,tray,store)
         analytics.event('App', 'changedCurrency', {evLabel: `version ${app.getVersion()}`})
             .then((response) => {
                 log.info(response)
@@ -258,7 +211,7 @@ app.on('ready', function () {
 
     const changeType = (newType) => {
         type = newType
-        updatePrice()
+        pricing.update(currency,type,tray,store)
 
         const crypto = Config.tickers.filter(x => type === x.symbol)[0];
         if (crypto && crypto.image && crypto.image.length > 0) {
@@ -279,7 +232,7 @@ app.on('ready', function () {
 
     // update prices every 60 seconds
     setInterval(() => {
-        updatePrice()
+        pricing.update(currency,type,tray,store)
     }, 60000);
 
     tray.setToolTip('Crypto Bar')
