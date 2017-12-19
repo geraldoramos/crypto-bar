@@ -44,12 +44,10 @@ if (process.platform === 'darwin') {
         ]
     })
 }
-
 //-------------------------------------------------------------------
 // Open a window that displays the version when user press CMD+D
 //-------------------------------------------------------------------
 let win;
-
 let updateAvailable = false
 
 function sendStatusToWindow(text) {
@@ -268,16 +266,13 @@ app.on('ready', function () {
     setInterval(() => {
         pricing.update(currency,type,tray,store)
     }, 60000);
-
     tray.setToolTip('Crypto Bar')
     tray.setContextMenu(contextMenu)
-
 });
 
 app.on('window-all-closed', () => {
     app.quit();
 });
-
 
 app.on('ready', function () {
     autoUpdater.checkForUpdatesAndNotify();
