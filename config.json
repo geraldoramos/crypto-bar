@@ -29,6 +29,10 @@
         "symbol": "EUR",
         "prefix": "€"
     }, {
+        "label": "CAD",
+        "symbol": "CAD",
+        "prefix": "$"
+    }, {
         "label": "GBP",
         "symbol": "GBP",
         "prefix": "£"
