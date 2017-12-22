@@ -2,13 +2,15 @@ const axios = require('axios')
 const Config = require('../config.json');
 
 const Pricing = {
-    get: async () => {
+    get: async (types) => {
         const currencies = Config.currencies.map(c => c.symbol).join(',');
-        const requests = Config.tickers.map(async ({ symbol }) => {
-            const url = `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=${currencies}`;
-            const res = await axios.get(url);
-            return { symbol, data: res.data };
-        });
+        const requests = Config.tickers
+            .filter(t => !types || types.includes(t.symbol))
+            .map(async ({ symbol }) => {
+                const url = `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=${currencies}`;
+                const res = await axios.get(url);
+                return { symbol, data: res.data };
+            });
         const responses = await axios.all(requests)
         return responses.reduce((accum, res) => {
             accum[res.symbol] = res.data;
@@ -21,11 +23,11 @@ const Pricing = {
         const prefix = Config.currencies
             .filter(c => c.symbol === currency)
             .map(c => c.prefix)[0] || '';
-        
+
         return {prefix: prefix, rates: rate}
 
-        // tray.setTitle(`${prefix}${rate[type][currency]}`)        
-    
+        // tray.setTitle(`${prefix}${rate[type][currency]}`)
+
     }
 }
 

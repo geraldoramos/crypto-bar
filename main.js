@@ -257,16 +257,22 @@ app.on('ready', function() {
         if (types.length > 0) {
             let type = types[0];
             titleInterval = setInterval(() => {
-                type = types[(types.indexOf(type) + 1) % types.length];
+                do {
+                  type = types[(types.indexOf(type) + 1) % types.length];
+                } while (!(type in rates));
+
                 tray.setTitle(`${prefix}${rates[type][currency]}`);
                 tray.setImage(getImage(type));
             }, 2000);
+        } else {
+          tray.setTitle('Crypto Bar')
+          tray.setImage(getImage('BTC'));  // Clear the image?
         }
     }
 
     // First update
     const updatePricing = () => {
-        pricing.get().then(rates => {
+        pricing.get(types).then(rates => {
             setTitle(rates);
 
             notification.send(rates).then(result => {
