@@ -1,16 +1,18 @@
-const { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } = require('electron');
-const log = require('electron-log');
-const { autoUpdater } = require("electron-updater");
-const path = require('path')
-let tray = null
-const prompt = require('./prompt');
-const pricing = require('./pricing_service');
-const notification = require('./notification_service');
-const Analytics = require('electron-google-analytics');
-const analytics = new Analytics.default('UA-111389782-1');
-const Config = require('./config.json');
-const machineIdSync = require('node-machine-id').machineIdSync
-const Raven = require('raven');
+import { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } from 'electron'
+import log from 'electron-log'
+import { autoUpdater } from "electron-updater"
+import path from 'path'
+import prompt from './prompt'
+import socket from './pricing_service'
+import notification  from './notification_service'
+import Analytics from 'electron-google-analytics';
+const analytics = new Analytics('UA-111389782-1');
+import Config from './config.json'
+import {machineIdSync} from 'node-machine-id'
+import Raven from 'raven'
+import Positioner from 'electron-positioner'
+import Store from 'electron-store'
+const store = new Store();
 
 // capture user's unique machine ID
 let clientID;
@@ -29,282 +31,232 @@ log.info('App starting...');
 Raven.config('https://e254805a5b5149d48d6561ae035dd19c:26a8736adf7c4ae08464ac3483eca1d2@sentry.io/260576').install();
 
 //-------------------------------------------------------------------
-// Define the menu
+// Starting variables
 //-------------------------------------------------------------------
-let template = []
-if (process.platform === 'darwin') {
-    // OS X
-    const name = app.getName();
-    template.unshift({
-        label: name,
-        submenu: [{
-                label: 'About ' + name,
-                role: 'about'
-            },
-            {
-                label: 'Quit',
-                accelerator: 'Command+Q',
-                click() {
-                    app.quit();
-                }
-            },
-        ]
-    })
-}
-//-------------------------------------------------------------------
-// Open a window that displays the version when user press CMD+D
-//-------------------------------------------------------------------
-let win;
+
+let mainWindow
 let updateAvailable = false
+let tray = null
 
 function sendStatusToWindow(text) {
-    log.info(text);
-    win.webContents.send('message', text);
+  log.info(text);
+  mainWindow.webContents.send('message', text);
 }
 
-function createDefaultWindow() {
-    win = new BrowserWindow();
-    win.webContents.openDevTools();
-    win.on('closed', () => {
-        win = null;
+function createWindow () {
+  mainWindow = new BrowserWindow({
+    width: 400,
+    height: 435,
+    transparent: true,
+    frame: false,
+    webPreferences: {
+      devTools: true
+    }
+  })
+
+  mainWindow.setVisibleOnAllWorkspaces(true);
+
+  // app.dock.hide();
+  tray = new Tray(path.join(__dirname, 'assets', 'btcTemplate.png'))
+  tray.setTitle("Fetching...")
+
+  const getImage = type => {
+    let crypto = Config.tickers.filter(x => type === x.symbol)[0];
+    if (crypto && crypto.image && crypto.image.length > 0) {
+        return path.join(__dirname, 'assets', crypto.image)
+    } else {
+        return path.join(__dirname, 'assets', 'blank.png')
+    }
+}
+
+
+setInterval(() => {
+  if (updateAvailable) {
+    mainWindow.webContents.send('update', {
+      updateAvailable: true
     });
-    win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
-    return win;
+  }
+}, 10000);
+
+globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
+  createDefaultWindow()
+})
+
+
+let newAlert = () => {
+
+  analytics.event('App', 'createdAlert', { evLabel: `version ${app.getVersion()}`, clientID })
+      .then((response) => {
+          log.info(response)
+      }).catch((err) => {
+          log.error(err)
+      });
+
+  prompt({
+          title: 'Set New Price Alert',
+          label: 'Rule:',
+          type: 'input', // 'select' or 'input, defaults to 'input'
+      })
+      .then((r) => {
+          if (r !== null && r.split(' ').length == 4) {
+              let options = r.split(' ')
+              notification.set(options)
+          }
+
+      })
+      .catch(console.error);
+}
+
+exports.newAlert = newAlert
+exports.app = app
+
+analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`, clientID })
+  .then((response) => {
+      log.info(response)
+  }).catch((err) => {
+      log.error(err)
+  });
+
+
+  tray.setToolTip('Crypto Bar')
+  mainWindow.loadURL('file://' + __dirname + '/index.html')
+  
+
+  let initPreferences = {
+    currencies:[{
+        exchange: 'Coinbase',
+        from: 'BTC',
+        to: 'USD',
+        default:true
+      },
+      {
+        exchange: 'Coinbase',
+        from: 'ETH',
+        to: 'USD',
+        default:false
+      },
+      {
+        exchange: 'Coinbase',
+        from: 'LTC',
+        to: 'USD',
+        default:false
+      },
+      {
+        exchange: 'Bitfinex',
+        from: 'XRP',
+        to: 'USD',
+        default:false
+      },
+      {
+        exchange: 'Coinbase',
+        from: 'BCH',
+        to: 'USD',
+        default:false
+      },
+      {
+        exchange: 'Bitfinex',
+        from: 'IOT',
+        to: 'USD',
+        default:false
+      }],
+      toCurrency: {symbol:'USD',prefix:"$"}
+    }
+
+    store.set('preferences', store.get('preferences') || initPreferences);
+
+    let connect = ()=> {
+      log.info('Connecting to socket')
+      socket.connect(store,mainWindow,tray,ipcMain,getImage,Config)
+    }
+
+    connect()
+
+    let disconnect = ()=> {
+      log.info('Disconnecting from socket')
+      socket.disconnect()
+    }
+
+    exports.connect = connect
+    exports.disconnect = disconnect
+    
+
+
+  const positioner = new Positioner(mainWindow)
+  let bounds = tray.getBounds()
+  positioner.move('trayCenter', bounds)
+
+  mainWindow.on('blur', () => {
+    mainWindow.hide()
+  })
+
+  exports.restart = () => {  
+    //Print 6
+    app.relaunch({
+      args: process.argv.slice(1).concat(['--relaunch'])
+  })
+  app.exit(0)
+}
+
+exports.store = store
+
+  tray.on('click', () => {
+    bounds = tray.getBounds()
+    positioner.move('trayCenter', bounds)
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  })
+  mainWindow.on('show', () => {
+    tray.setHighlightMode('always')
+  })
+  mainWindow.on('hide', () => {
+    tray.setHighlightMode('never')
+  })
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+
+
 }
 
 autoUpdater.on('checking-for-update', () => {
-    sendStatusToWindow('Checking for update...');
+  sendStatusToWindow('Checking for update...');
 })
 autoUpdater.on('update-available', (info) => {
-    sendStatusToWindow('Update available.');
-    updateAvailable = true
+  sendStatusToWindow('Update available.');
+  updateAvailable = true
 })
 
 
 autoUpdater.on('update-not-available', (info) => {
-    sendStatusToWindow('Update not available.');
-    updateAvailable = false
+  sendStatusToWindow('Update not available.');
+  updateAvailable = false
 })
 autoUpdater.on('error', (err) => {
-    sendStatusToWindow('Error in auto-updater. ' + err);
+  sendStatusToWindow('Error in auto-updater. ' + err);
 })
 autoUpdater.on('download-progress', (progressObj) => {
-    let log_message = "Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-    sendStatusToWindow(log_message);
-    updateAvailable = false
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  sendStatusToWindow(log_message);
+  updateAvailable = false
 })
 
 autoUpdater.on('update-downloaded', (info) => {
-    sendStatusToWindow('Update downloaded');
-    updateAvailable = false
+  sendStatusToWindow('Update downloaded');
+  updateAvailable = false
 });
 
-app.on('ready', function() {
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
-
-    // Default values for currency and crypto type
-    let currency = 'USD'
-    let type = 'BTC'
-
-    app.dock.hide();
-    tray = new Tray(path.join(__dirname, 'assets', 'btcTemplate.png'))
-    tray.setTitle("Fetching...")
-
-    const getImage = type => {
-        crypto = Config.tickers.filter(x => type === x.symbol)[0];
-        if (crypto && crypto.image && crypto.image.length > 0) {
-            return path.join(__dirname, 'assets', crypto.image)
-        } else {
-            return path.join(__dirname, 'assets', 'blank.png')
-        }
-    }
-
-    const cryptoTemplates = Config.tickers.map(({ symbol, label }) => ({
-        label,
-        type: 'radio',
-        icon: getImage(symbol),
-        click() {
-            changeType(symbol);
-        }
-    }));
-
-    const currencyTemplates = Config.currencies.map(({ symbol, label }) => ({
-        label,
-        type: 'radio',
-        checked: currency === symbol,
-        click() {
-            changeCurrency(symbol)
-        }
-    }));
-
-    const contextMenuTemplate = [{
-            label: `Crypto Bar ${app.getVersion()}`,
-            type: 'normal',
-            enabled: false
-        }, {
-            label: 'Update Available (restart)',
-            visible: false,
-            click() {
-                app.relaunch({
-                    args: process.argv.slice(1).concat(['--relaunch'])
-                })
-                app.exit(0)
-            }
-        },
-
-        {
-            type: 'separator'
-        }, {
-            label: 'Set new alert',
-            type: 'normal',
-            click() {
-                newAlert()
-            },
-        },
-        {
-            label: 'Reset alerts',
-            type: 'normal',
-            click() {
-                notification.reset()
-            },
-        },
-        {
-            type: 'separator'
-        }, ...cryptoTemplates, {
-            type: 'separator'
-        }, ...currencyTemplates, {
-            type: 'separator'
-        }, {
-            label: 'Quit',
-            accelerator: 'CommandOrControl+Q',
-            click() {
-                app.quit()
-            }
-        }
-    ];
-
-    const contextMenu = Menu.buildFromTemplate(contextMenuTemplate);
-    // show update available menu if there is an update. Check for updates every minute
-    if (updateAvailable) {
-        contextMenu.items[1].visible = true
-    }
-    setInterval(() => {
-        if (updateAvailable) {
-            contextMenu.items[1].visible = true
-        }
-    }, 6000);
-
-    globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
-        createDefaultWindow()
-    })
-
-    let newAlert = () => {
-
-        analytics.event('App', 'createdAlert', { evLabel: `version ${app.getVersion()}`, clientID })
-            .then((response) => {
-                log.info(response)
-            }).catch((err) => {
-                log.error(err)
-            });
-
-        prompt({
-                title: 'Set New Price Alert',
-                label: 'Rule:',
-                type: 'input', // 'select' or 'input, defaults to 'input'
-            })
-            .then((r) => {
-                if (r !== null && r.split(' ').length == 4) {
-                    let options = r.split(' ')
-                    notification.set(options)
-                }
-
-            })
-            .catch(console.error);
-    }
-
-    analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`, clientID })
-        .then((response) => {
-            log.info(response)
-        }).catch((err) => {
-            log.error(err)
-        });
-
-
-    // First update
-    pricing.update(currency, type).then(data => {
-        tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-        notification.send(data.rates).then(result => {
-            log.info(result)
-        })
-    })
-
-    // pricing.update(currency,type,tray,store)
-
-    // Handle currency change
-    const changeCurrency = (newcurrency) => {
-        currency = newcurrency
-
-        pricing.update(currency, type).then(data => {
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-            notification.send(data.rates).then(result => {
-                log.info(result)
-            })
-        })
-        analytics.event('App', 'changedCurrency', { evLabel: `version ${app.getVersion()}`, clientID })
-            .then((response) => {
-                log.info(response)
-            }).catch((err) => {
-                log.error(err)
-            });
-    }
-
-    // Handle type change
-    const changeType = (newType) => {
-        type = newType
-        pricing.update(currency, type).then(data => {
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-            tray.setImage(getImage(type));
-            notification.send(data.rates).then(result => {
-                log.info(result)
-            })
-        })
-        analytics.event('App', 'changedType', { evLabel: `version ${app.getVersion()}`, clientID })
-            .then((response) => {
-                log.info(response)
-            }).catch((err) => {
-                log.error(err)
-            });
-
-    }
-
-    // update prices every 60 seconds
-    setInterval(() => {
-        pricing.update(currency, type).then((data) => {
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-            notification.send(data.rates).then(result => {
-                log.info(result)
-            })
-        })
-
-        analytics.event('App', 'priceUpdate', { evLabel: `version ${app.getVersion()}`, clientID })
-            .then((response) => {
-                log.info(response)
-            }).catch((err) => {
-                log.error(err)
-            });
-    }, 60000);
-
-    tray.setToolTip('Crypto Bar')
-    tray.setContextMenu(contextMenu)
-});
+app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
-    app.quit();
-});
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
 
-app.on('ready', function() {
-    autoUpdater.checkForUpdatesAndNotify();
-});
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow()
+  }
+})

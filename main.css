@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:100,300,400,600');
+
+
+.myarrow {
+position: relative;
+padding: 12px 0;
+}
+
+html,
+body {
+margin: 0 auto;
+overflow: hidden!important;
+user-select: none;
+cursor:default!important;
+}
+
+/**
+
+Set box-sizing to border-box for all elements by default. This makes it
+easier to ensure widths when adding padding and borders.
+*/
+html {
+box-sizing: border-box;
+font-family: 'Open Sans', sans-serif;
+-webkit-text-size-adjust: 100%;
+}
+*, *::before, *::after {
+box-sizing: inherit;
+}
+
+h1{
+font-weight: 300;
+font-size:14px;
+color: #67737A;
+}
+
+h2{
+font-weight: 100;
+font-size: 12px;
+color: #67737A;
+}
+
+a{
+color: #67737A;
+text-decoration: none;
+}
+
+a:hover{
+color:#675BC0;
+}
+
+.currency{
+color: #67737A;
+margin-top: 14px;
+font-size: 16px;
+font-weight: 600;
+text-align: center;
+}
+
+.price{
+color: #67737A;
+font-size: 20px;
+font-weight: 300;
+text-align: center;
+}
+
+.volume{
+color: #C0C9CF;
+font-size: 11px;
+font-weight: 300;
+text-align: center;
+}
+
+.settings{
+float: right;
+}
+
+.Select{
+    font-size: 11px;
+    font-family: 'Open Sans', sans-serif;
+    border-color: white!important;
+}
+
+.Select-control {
+    border-color: white!important;
+    border: 1px solid white!important;
+}
+
+.Select-menu{
+    overflow:hidden!important;
+}
+
+.Select-value{
+    color:white!important;
+}
+
+.open-top .Select-menu-outer {
+    top: auto;
+    bottom: 100%;
+  }
+
+.row{
+display: flex;
+flex-wrap: wrap;
+margin: 10px;
+}
+
+.submenuRow{
+    margin:8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.exchange{
+    color: #C0C9CF;
+    font-weight: 300;
+    font-size: 14px;
+}
+
+.box{
+margin: 5px auto;
+width: 150px;
+height: 100px;
+background: #FFFFFF;
+border: 1px solid #F3F4F4;
+border-radius: 4px;
+}
+
+.box:hover{
+    background: #f3f4f4;
+    border: 1px solid rgb(238, 238, 238);
+}
+
+.submenu{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 300px;
+}
+
+
+.submenu-item{
+margin:4px 4px 8px 4px;
+border-bottom: 2px solid #fafafa;
+color:#67737A;
+font-weight: 300;
+}
+
+.submenu-item:hover{
+    border-bottom: 2px solid #675BC0;
+}
+
+.submenu-subtitle{
+    margin-top:7px;
+    padding-bottom: 3px;
+    text-align: center;
+    font-size: 12px;
+    color:#92A0AA;
+    font-weight: 300;
+}
+
+.submenu-selected{
+    border-bottom: 2px solid #675BC0;
+}
+
+.title{
+margin: 10px 10px 0px 0;
+}
+
+.main-title{
+    padding-left: 25px;
+}
+
+.inside{
+border-top: 1px solid #F3F4F4;
+border-bottom: 1px solid #F3F4F4;
+background-color: #FAFAFA;
+width: 100%;
+height: 350px;
+margin: 0!important;
+}
+
+.up{
+font-size: 12px;
+color: #7ED321;
+vertical-align: middle;
+}
+
+.down{
+    font-size: 12px;
+    color: #cb2c31; 
+    vertical-align: middle;
+}
+
+/* i{
+color:#675BC0;
+} */
+
+.version{
+color:#92A0AA;
+}
+
+.myarrow:before {
+content: "";
+height: 0;
+width: 0;
+border-width: 0 8px 12px 8px;
+border-style: solid;
+border-color: transparent transparent white transparent;
+position: absolute;
+top: 0px;
+left: 50%;
+transform: translateX(-50%);
+}
+
+.page {
+background: white;
+display: flex;
+flex-direction: column;
+width: 340px;
+height: 540px;
+margin: 0 auto;
+}
+
+.darwin.page {
+border-radius: 5px;
+/* box-shadow: 0 5px 24px rgba(0, 0, 0, 0.7); */
+overflow: hidden;
+}
+
+.container{
+margin:0px 0px 0px 0px;
+}
+
+.header{
+display: inline;
+text-align: center;
+}
+
+.footer{
+display: inline;
+text-align: center;
+}
