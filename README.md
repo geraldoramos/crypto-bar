@@ -4,7 +4,7 @@
 
 <p align="center"><img src="https://s3.amazonaws.com/cryptobar/crypto-bar.gif" width="600"/></p>
 
-
+**New version coming soon, if you plan to work on any changes, please have that in mind**
 ### Downloading the app
 
 To download the app, click [here](https://github.com/geraldoramos/crypto-bar/releases/latest) (currently available for macOS only)
