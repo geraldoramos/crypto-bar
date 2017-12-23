@@ -82,7 +82,7 @@ export default class Main extends React.Component {
   render() {
     
     let Footer = (<div className="footer">
-    <h2><a target="_blank" href="https://github.com/geraldoramos/crypto-bar">Crypto Bar</a> <span className="version">1.0.18</span>
+    <h2><a target="_blank" href="https://github.com/geraldoramos/crypto-bar">Crypto Bar</a> <span className="version">{this.state.version}</span>
     { this.state.updateAvailable ?
     <span>&nbsp;(<a href="#" onClick={this.handleUpdate}>Install Update</a>)</span> : null}
     </h2>
