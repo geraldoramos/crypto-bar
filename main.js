@@ -1,6 +1,7 @@
 const { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } = require('electron');
 const log = require('electron-log');
 const { autoUpdater } = require("electron-updater");
+const fs = require('fs')
 const path = require('path')
 let tray = null
 const prompt = require('./prompt');
@@ -105,9 +106,21 @@ app.on('ready', function() {
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
 
+    const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+
+    const config = fs.existsSync(settingsPath)
+      ? JSON.parse(fs.readFileSync(settingsPath, 'utf-8'))
+      : {};
+
+    const store = (key, value) => {
+      config[key] = value;
+      fs.writeFileSync(settingsPath, JSON.stringify(config));
+    }
+
     // Default values for currency and crypto type
-    let currency = 'USD'
-    let type = 'BTC'
+    let currency = config.currency || 'USD'
+    let types = config.types || ['BTC']
+    let titleInterval
 
     app.dock.hide();
     tray = new Tray(path.join(__dirname, 'assets', 'btcTemplate.png'))
@@ -124,10 +137,11 @@ app.on('ready', function() {
 
     const cryptoTemplates = Config.tickers.map(({ symbol, label }) => ({
         label,
-        type: 'radio',
+        type: 'checkbox',
+        checked: types.includes(symbol),
         icon: getImage(symbol),
-        click() {
-            changeType(symbol);
+        click(menuItem) {
+            changeType(symbol, menuItem.checked);
         }
     }));
 
@@ -232,14 +246,42 @@ app.on('ready', function() {
             log.error(err)
         });
 
+    const setTitle = rates => {
+        const prefix = Config.currencies
+            .filter(c => c.symbol === currency)
+            .map(c => c.prefix)[0] || '';
+
+        clearInterval(titleInterval);
+        titleInterval = null;
+
+        if (types.length > 0) {
+            let type = types[0];
+            titleInterval = setInterval(() => {
+                do {
+                  type = types[(types.indexOf(type) + 1) % types.length];
+                } while (!(type in rates));
+
+                tray.setTitle(`${prefix}${rates[type][currency]}`);
+                tray.setImage(getImage(type));
+            }, 2000);
+        } else {
+          tray.setTitle('Crypto Bar')
+          tray.setImage(getImage('BTC'));  // Clear the image?
+        }
+    }
 
     // First update
-    pricing.update(currency, type).then(data => {
-        tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-        notification.send(data.rates).then(result => {
-            log.info(result)
+    const updatePricing = () => {
+        pricing.get(types).then(rates => {
+            setTitle(rates);
+
+            notification.send(rates).then(result => {
+                log.info(result)
+            })
         })
-    })
+    }
+
+    updatePricing();
 
     // pricing.update(currency,type,tray,store)
 
@@ -247,12 +289,10 @@ app.on('ready', function() {
     const changeCurrency = (newcurrency) => {
         currency = newcurrency
 
-        pricing.update(currency, type).then(data => {
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-            notification.send(data.rates).then(result => {
-                log.info(result)
-            })
-        })
+        updatePricing();
+
+        store('currency', currency);
+
         analytics.event('App', 'changedCurrency', { evLabel: `version ${app.getVersion()}`, clientID })
             .then((response) => {
                 log.info(response)
@@ -262,15 +302,17 @@ app.on('ready', function() {
     }
 
     // Handle type change
-    const changeType = (newType) => {
-        type = newType
-        pricing.update(currency, type).then(data => {
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-            tray.setImage(getImage(type));
-            notification.send(data.rates).then(result => {
-                log.info(result)
-            })
-        })
+    const changeType = (newType, enabled) => {
+        if (enabled) {
+          types.push(newType);
+        } else {
+          types.splice(types.indexOf(newType), 1);
+        }
+
+        updatePricing();
+
+        store('types', types);
+
         analytics.event('App', 'changedType', { evLabel: `version ${app.getVersion()}`, clientID })
             .then((response) => {
                 log.info(response)
@@ -282,12 +324,7 @@ app.on('ready', function() {
 
     // update prices every 60 seconds
     setInterval(() => {
-        pricing.update(currency, type).then((data) => {
-            tray.setTitle(`${data.prefix}${data.rates[type][currency]}`)
-            notification.send(data.rates).then(result => {
-                log.info(result)
-            })
-        })
+        updatePricing();
 
         analytics.event('App', 'priceUpdate', { evLabel: `version ${app.getVersion()}`, clientID })
             .then((response) => {
