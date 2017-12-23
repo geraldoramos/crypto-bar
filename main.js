@@ -124,32 +124,6 @@ globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
   mainWindow.webContents.openDevTools()
 })
 
-
-let newAlert = () => {
-
-  analytics.event('App', 'createdAlert', { evLabel: `version ${app.getVersion()}`, clientID })
-      .then((response) => {
-          log.info(response)
-      }).catch((err) => {
-          log.error(err)
-      });
-
-  prompt({
-          title: 'Set New Price Alert',
-          label: 'Rule:',
-          type: 'input', // 'select' or 'input, defaults to 'input'
-      })
-      .then((r) => {
-          if (r !== null && r.split(' ').length == 4) {
-              let options = r.split(' ')
-              notification.set(options)
-          }
-
-      })
-      .catch(console.error);
-}
-
-exports.newAlert = newAlert
 exports.app = app
 
 analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`, clientID })
