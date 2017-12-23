@@ -2,24 +2,42 @@
     "tickers": [{
         "label": "BTC",
         "symbol": "BTC",
+        "exchange": ["Coinbase","Bitfinex"],
         "image": "btcTemplate.png"
     }, {
         "label": "ETH",
         "symbol": "ETH",
+        "exchange": ["Coinbase","Bitfinex"],
         "image": "ethTemplate.png"
     }, {
         "label": "LTC",
         "symbol": "LTC",
+        "exchange": ["Coinbase","Bitfinex"],
         "image": "ltcTemplate.png"
     }, {
         "label": "XRP",
         "symbol": "XRP",
+        "exchange": ["Bitfinex"],
         "image": "xrpTemplate.png"
     }, {
-        "label": "ADA",
-        "symbol": "ADA",
+        "label": "BCH",
+        "symbol": "BCH",
+        "exchange": ["Coinbase","Bitfinex"],
+        "image": "adaTemplate.png"
+    },
+    {
+        "label": "IOT",
+        "symbol": "IOT",
+        "exchange": ["Bitfinex"],
+        "image": "adaTemplate.png"
+    },
+    {
+        "label": "XMR",
+        "symbol": "XMR",
+        "exchange": ["Bitfinex"],
         "image": "adaTemplate.png"
     }],
+
     "currencies": [{
         "label": "USD",
         "symbol": "USD",
@@ -28,22 +46,6 @@
         "label": "EUR",
         "symbol": "EUR",
         "prefix": "€"
-    }, {
-        "label": "CAD",
-        "symbol": "CAD",
-        "prefix": "$"
-    }, {
-        "label": "GBP",
-        "symbol": "GBP",
-        "prefix": "£"
-    }, {
-        "label": "BRL",
-        "symbol": "BRL",
-        "prefix": "R$"
-    }, {
-        "label": "MXN",
-        "symbol": "MXN",
-        "prefix": "$"
     }
   ]
 }

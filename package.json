@@ -1,27 +1,42 @@
 {
   "name": "crypto-bar",
-  "version": "1.0.19",
-  "main": "main.js",
-  "description": "A menu bar app that provides cryptocurrencies prices in real-time",
+  "version": "1.1.0",
+  "main": "index.js",
+  "title": "Crypto Bar",
+  "description":"A menu bar application that updates cryptocurrencies prices in real-time",
   "author": "Geraldo Ramos",
+  "repository": "geraldoramos/crypto-bar",
   "scripts": {
+    "start": "electron -r babel-register .",
     "publish": "build -p always"
-  },
-  "devDependencies": {
-    "electron": "^1.7.9",
-    "electron-builder": "^19.49.0"
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-register": "^6.3.13",
+    "better-react-spinkit": "^2.0.4",
     "electron-google-analytics": "0.0.24",
-    "electron-log": "^1.3.0",
+    "electron-log": "^2.2.13",
+    "electron-positioner": "^3.0.0",
     "electron-prompt": "^0.5.0",
     "electron-store": "^1.3.0",
-    "electron-updater": "^2.16.1",
+    "electron-updater": "^2.17.6",
+    "format-currency": "^1.0.0",
+    "money": "^0.2.0",
     "node-machine-id": "^1.1.9",
-    "node-notifier": "^5.1.2",
     "path": "^0.12.7",
-    "raven": "^2.3.0"
+    "raven": "^2.3.0",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "react-loading-animation": "^1.4.0",
+    "react-select": "^1.1.0",
+    "react-spinkit": "^3.0.0",
+    "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4"
+  },
+  "devDependencies": {
+    "electron": "^1.4.3"
   },
   "build": {
     "publish": [

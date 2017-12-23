@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>electron es6 react boilerplate</title>
+    <link rel="stylesheet" href="main.css">
+    <link href="https://use.fontawesome.com/releases/v5.0.2/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/react-select/dist/react-select.css">
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script>
+      // install babel hooks in the renderer process
+      require('babel-register');
+      require('./scripts/main');
+    </script>
+  </body>
+</html>

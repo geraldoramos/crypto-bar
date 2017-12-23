@@ -2,10 +2,10 @@ const {Notification} = require('electron');
 const Store = require('electron-store');
 const store = new Store();
 
-Notify = {
+const Notify = {
   send: (allRates) => {
     return new Promise((resolve) => {
-      notifyList = store.get('notifyList') || [];
+      let notifyList = store.get('notifyList') || [];
       let sendNotify = notifyList.filter(x => {
         return x.rule === 'above' ? x.target < allRates[x.type][x.currency] : x.target > allRates[x.type][x.currency]
       })
