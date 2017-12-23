@@ -38,12 +38,51 @@ let mainWindow
 let updateAvailable = false
 let tray = null
 
-function sendStatusToWindow(text) {
+
+const sendStatusToWindow = (text) => {
   log.info(text);
-  mainWindow.webContents.send('message', text);
+  
+  if(text === 'Update downloaded'){
+    updateAvailable = true
+  }
+
+  mainWindow.webContents.send('update', {
+    updateAvailable: updateAvailable,
+    updateInfo: text
+  });
+
 }
 
 function createWindow () {
+
+
+  autoUpdater.checkForUpdatesAndNotify();
+
+
+  autoUpdater.on('checking-for-update', () => {
+    sendStatusToWindow('Checking for update...');
+  })
+  autoUpdater.on('update-available', (info) => {
+    sendStatusToWindow('Update available.');
+  })
+  
+  autoUpdater.on('update-not-available', (info) => {
+    sendStatusToWindow('Update not available.');
+  })
+  autoUpdater.on('error', (err) => {
+    sendStatusToWindow('Error in auto-updater. ' + err);
+  })
+  autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    sendStatusToWindow(log_message);
+  })
+  
+  autoUpdater.on('update-downloaded', (info) => {
+    sendStatusToWindow('Update downloaded');
+  });
+   
   mainWindow = new BrowserWindow({
     width: 400,
     height: 435,
@@ -55,8 +94,9 @@ function createWindow () {
   })
 
   mainWindow.setVisibleOnAllWorkspaces(true);
+  
+  app.dock.hide();
 
-  // app.dock.hide();
   tray = new Tray(path.join(__dirname, 'assets', 'btcTemplate.png'))
   tray.setTitle("Fetching...")
 
@@ -78,8 +118,10 @@ setInterval(() => {
   }
 }, 10000);
 
+// hiden shortcut for debugging
 globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
-  createDefaultWindow()
+  app.dock.show();
+  mainWindow.webContents.openDevTools()
 })
 
 
@@ -217,35 +259,6 @@ exports.store = store
 
 
 }
-
-autoUpdater.on('checking-for-update', () => {
-  sendStatusToWindow('Checking for update...');
-})
-autoUpdater.on('update-available', (info) => {
-  sendStatusToWindow('Update available.');
-  updateAvailable = true
-})
-
-
-autoUpdater.on('update-not-available', (info) => {
-  sendStatusToWindow('Update not available.');
-  updateAvailable = false
-})
-autoUpdater.on('error', (err) => {
-  sendStatusToWindow('Error in auto-updater. ' + err);
-})
-autoUpdater.on('download-progress', (progressObj) => {
-  let log_message = "Download speed: " + progressObj.bytesPerSecond;
-  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-  sendStatusToWindow(log_message);
-  updateAvailable = false
-})
-
-autoUpdater.on('update-downloaded', (info) => {
-  sendStatusToWindow('Update downloaded');
-  updateAvailable = false
-});
 
 app.on('ready', createWindow)
 

@@ -17,6 +17,7 @@ export default class Main extends React.Component {
       version:null,
       data:[],
       updateAvailable:false,
+      updateInfo:'',
       loading:true,
       page:'home',
       fromOptions: Config.tickers.map(x=>{return {label:x.label,value:x.value}}),
@@ -61,7 +62,6 @@ export default class Main extends React.Component {
     let prices;
     // Websocket data
     ipcRenderer.on('socket' , function(event , data) {
-      console.log(data)
       prices = Object.keys(data).map(key => {
         return {priceData:data[key], direction: data[key].flag ==='1' ? 'up' : 'down'}
         })
@@ -72,35 +72,19 @@ export default class Main extends React.Component {
       }.bind(this));
     
       ipcRenderer.on('update' , function(event , result) {
-     
-      if (result.updateAvailable){
-        this.setState({updateAvailable:true})
-      }
+        this.setState({updateAvailable:result.updateAvailable,updateInfo:result.updateInfo})
+        console.log(result)
 
     }.bind(this))
-
     this.setState({version:main.app.getVersion()})
-
   }
 
   render() {
-
-    // if(this.state.loading){
-    //   return (
-    //     <div className="myarrow">
-    //       <div className="page darwin">
-    //         <div className="container">
-    //           <br/>
-    //           <center><Circle size={50} color="#675BC0"/>
-    //             <h2>Fetching data from servers</h2></center>
-    //   </div></div></div>
-    //   )
-    // }
-
+    
     let Footer = (<div className="footer">
     <h2><a target="_blank" href="https://github.com/geraldoramos/crypto-bar">Crypto Bar</a> <span className="version">1.0.18</span>
     { this.state.updateAvailable ?
-    <span>&nbsp;(<a href="#" onClick={this.handleUpdate}>Update available</a>)</span> : null}
+    <span>&nbsp;(<a href="#" onClick={this.handleUpdate}>Install Update</a>)</span> : null}
     </h2>
     </div>)
 
