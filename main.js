@@ -133,6 +133,16 @@ analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`, 
       log.error(err)
   });
 
+// Heartbeat
+setTimeout(() => {
+  analytics.event('App', 'heartBeat', { evLabel: `version ${app.getVersion()}`, clientID })
+  .then((response) => {
+      log.info(response)
+  }).catch((err) => {
+      log.error(err)
+  });
+}, 30000);
+
 
   tray.setToolTip('Crypto Bar')
   mainWindow.loadURL('file://' + __dirname + '/index.html')
