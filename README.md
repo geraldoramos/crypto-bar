@@ -4,10 +4,10 @@
 
 <p align="center"><img src="https://s3.amazonaws.com/cryptobar/crypto-bar.gif" width="600"/></p>
 
-**[New version](http://d.pr/v/G3xx8s/3KcZxuIC) coming soon, if you plan to work on any changes, please have that in mind**
-### Downloading the app
+### Downloading the App
 
-To download the app, click [here](https://github.com/geraldoramos/crypto-bar/releases/latest) (currently available for macOS only)
+To download the last release, click [here](https://github.com/geraldoramos/crypto-bar/releases/latest) (currently available for macOS only)
+To download the last draft (unstable and not complete), click [here](https://github.com/geraldoramos/crypto-bar/releases/tag/untagged-07966bd54df8de58ad3c)
 
 ### Build the app locally for development (PR's welcome)
 
@@ -19,14 +19,8 @@ cd crypto-bar
 
 **Then install and launch:**
 ```
-npm install && electron .
+npm install && npm start .
  ```
-
- If the command `electron` is not working, make sure to install electron globally:
- ```
-npm install electron -g
-```
-
 
 ### License
 This app is distributed under the Creative Commons Zero v1.0 Universal license
