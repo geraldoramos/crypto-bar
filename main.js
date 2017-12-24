@@ -98,7 +98,7 @@ function createWindow() {
     if (crypto && crypto.image && crypto.image.length > 0) {
       return path.join(__dirname, 'assets', crypto.image)
     } else {
-      return path.join(__dirname, 'assets', 'blank.png')
+      return path.join(__dirname, 'assets', 'blankTemplate.png')
     }
   }
 
@@ -138,7 +138,6 @@ function createWindow() {
   mainWindow.loadURL('file://' + __dirname + '/index.html')
 
   // Get default preferences or use saved preferences
-  store.delete('preferences')
   store.set('preferences', store.get('preferences') || Config.defaultPreferences);
 
   // socket connection methods

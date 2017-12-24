@@ -59,7 +59,7 @@ text-align: center;
 
 .price{
 color: #67737A;
-font-size: 20px;
+font-size: 18px;
 font-weight: 300;
 text-align: center;
 }
@@ -86,9 +86,9 @@ float: right;
     border: 1px solid white!important;
 }
 
-.Select-menu{
+/* .Select-menu{
     overflow:hidden!important;
-}
+} */
 
 .Select-value{
     color:white!important;
@@ -130,6 +130,13 @@ border-radius: 4px;
 .box:hover{
     background: #f3f4f4;
     border: 1px solid rgb(238, 238, 238);
+}
+
+.tick{
+    font-size: 8px;
+    float: right;
+    margin-right:8px;
+    color: #7ED321;
 }
 
 .submenu{

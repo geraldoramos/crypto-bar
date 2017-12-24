@@ -8,6 +8,7 @@ const Config = require('../config.json')
 const formatCurrency = require('format-currency')
 import { Circle } from 'better-react-spinkit'
 import Select from 'react-select'
+let notStarted = true
 
 export default class Main extends React.Component {
 
@@ -22,7 +23,8 @@ export default class Main extends React.Component {
       page:'home',
       fromOptions: Config.tickers.map(x=>{return {label:x.label,value:x.value}}),
       toOptions: Config.currencies.map(x=>{return {label:x.label,value:x.value}}),
-      currentSettings: {}
+      currentSettings: {},
+      selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]
 
     };
     this.handleBox = this.handleBox.bind(this);
@@ -34,6 +36,7 @@ export default class Main extends React.Component {
 
   handleBox(from, to, price, exchange, prefix){
     ipcRenderer.send('async', {selected:[from,to,price,exchange,prefix]});
+    this.setState({selectedBox:from+to+exchange})
   }
 
   handleAppUpdate(){
@@ -51,6 +54,7 @@ export default class Main extends React.Component {
     main.disconnect()
     main.connect()
     this.setState({page:'home'})
+    notStarted = true
   }
 
   handlePageUpdate(page){
@@ -58,17 +62,27 @@ export default class Main extends React.Component {
   }
 
   componentWillMount(){
+
     this.setState({currentSettings:main.store.get('preferences')})
     let prices;
+
     // Websocket data
     ipcRenderer.on('socket' , function(event , data) {
       prices = Object.keys(data).map(key => {
         return {priceData:data[key], direction: data[key].flag ==='1' ? 'up' : 'down'}
         })
       this.setState({data:prices})
+
       if(prices.length == 1){
         this.setState({loading:false})
       }
+
+      if(notStarted){
+        let selectedTray = data[main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]]
+        ipcRenderer.send('async', {selected:[selectedTray.from,selectedTray.to,selectedTray.price,selectedTray.exchange,selectedTray.prefix]});
+        notStarted = false
+      }
+    
       }.bind(this));
     
       ipcRenderer.on('update' , function(event , result) {
@@ -111,9 +125,12 @@ export default class Main extends React.Component {
       let currencyList = this.state.data.map (x =>{
           return (
             <div className="box" href="#" onClick={() => this.handleBox(x.priceData.from,x.priceData.to,x.priceData.price,x.priceData.exchange,x.priceData.prefix)}>
-            <div className="currency">{x.priceData.from} <span className="exchange">({x.priceData.exchange})</span> </div>
-            <div className="price">{x.priceData.prefix}{formatCurrency(x.priceData.price)}&nbsp;{priceDirection(x.priceData.flag)}</div>
-            <div className="volume">V:{formatCurrency(x.priceData.volume24h)}</div>
+            <div className="currency">{x.priceData.from} <span className="exchange">({x.priceData.exchangeFallback || x.priceData.exchange})</span> </div>
+            <div className="price">{x.priceData.prefix}{formatCurrency(x.priceData.price)}&nbsp;
+            {x.priceData.volume24h==0 ? null : priceDirection(x.priceData.flag)}</div>
+            <div className="volume">{x.priceData.volume24h==0?'no volume data':`V:${formatCurrency(x.priceData.volume24h)}`}</div>
+            {this.state.selectedBox === x.priceData.from+x.priceData.to+x.priceData.exchange?
+            <div className={"tick"}><i className="fas fa-check"/></div>:null}
           </div>)
       })
     
@@ -180,7 +197,7 @@ export default class Main extends React.Component {
     scrollMenuIntoView={false}
     value={{label:x.exchange,value:x.exchange}}
     onChange={(e) => this.handlePrefUpdate(e,i,'exchange')}
-    options={Config.tickers.filter(y=>x.from==y.label).map(y=>y.exchange)[0].map(y=>{return {value:y,label:y}})}
+    options={Config.exchanges.map(x=>{return {value:x,label:x}})}
   />
   </div>)
 
