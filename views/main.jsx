@@ -8,6 +8,7 @@ const Config = require('../config.json')
 const formatCurrency = require('format-currency')
 import { Circle } from 'better-react-spinkit'
 import Select from 'react-select'
+import VirtualizedSelect from 'react-virtualized-select';
 let notStarted = true
 
 export default class Main extends React.Component {
@@ -21,8 +22,6 @@ export default class Main extends React.Component {
       updateInfo:'',
       loading:true,
       page:'home',
-      fromOptions: Config.tickers.map(x=>{return {label:x.label,value:x.value}}),
-      toOptions: Config.currencies.map(x=>{return {label:x.label,value:x.value}}),
       currentSettings: {},
       selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]
 
@@ -169,27 +168,27 @@ export default class Main extends React.Component {
 
     let SubOptions = this.state.currentSettings.currencies.map((x,i) => {
     return  (<div className="submenuRow">
-    <Select
+    <VirtualizedSelect
     name="fromOptions"
     className={i > 2 ? 'open-top' : null}
-    style={{width:'65px',margin:'2px'}}
+    style={{width:'90px',margin:'2px'}}
     clearable={false}
     scrollMenuIntoView={false}
     value={{label:x.from,value:x.from}}
     onChange={(e) => this.handlePrefUpdate(e,i,'from')}
-    options={this.state.fromOptions}
+    options={Config.tickers.map(x=>{return {label:x.label,value:x.value}})}
   />
-    <Select
+    <VirtualizedSelect
     name="toOptions"
     className={i > 2 ? 'open-top' : null}
-    style={{width:'65px',margin:'2px'}}
+    style={{width:'90px',margin:'2px'}}
     clearable={false}
     scrollMenuIntoView={false}
     value={{label:x.to,value:x.to}}
     onChange={(e) => this.handlePrefUpdate(e,i,'to')}
-    options={this.state.toOptions}
+    options={Config.currencies.map(x=>{return {label:x.label,value:x.value}})}
   />
-  <Select
+  <VirtualizedSelect
     name="exchange"
     className={i > 2 ? 'open-top' : null}
     style={{width:'90px',margin:'2px'}}
