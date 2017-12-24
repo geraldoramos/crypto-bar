@@ -1,15 +1,11 @@
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/crypto-bar/Lobby)
 # <a target="_blank" href="https://www.producthunt.com/posts/crypto-bar"><img src="https://s3.amazonaws.com/cryptobar/phbadge.png" width="35px" height="35px"></img></a> Crypto Bar
-> A menu bar application built using [Electron](https://github.com/electron) that updates cryptocurrencies prices in real-time and allows users to create alerts for price changes. Pricing data is updated every minute and uses [CCCAGG](https://www.cryptocompare.com/media/12318004/cccagg.pdf) as the default exchange. The ability to configure a different exchange will be released soon.
-
+> A menu bar application built using [Electron](https://github.com/electron) that updates cryptocurrencies prices in real-time using websockets. [Data](https://github.com/geraldoramos/crypto-bar/blob/master/config.json) available for almost all cryptocurrencies and exchanges.
 <p align="center"><img src="https://s3.amazonaws.com/cryptobar/crypto-bar.gif" width="600"/></p>
 
 ### Downloading the App
 
-New [version](https://d.pr/free/v/G3xx8s/3KcZxuIC) on the works. Download the stable release or play with the new one (not stable yet)
-
-- To download the last stable release, click [here](https://github.com/geraldoramos/crypto-bar/releases/tag/v1.0.19) (currently available for macOS only)
-- To download the latest release (unstable and not complete), click [here](https://github.com/geraldoramos/crypto-bar/releases/latest)
+- To download the last release click [here](https://github.com/geraldoramos/crypto-bar/releases/latest)
 
 ### Build the app locally for development (PR's welcome)
 
