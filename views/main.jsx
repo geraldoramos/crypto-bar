@@ -107,7 +107,7 @@ export default class Main extends React.Component {
     </h2>
     </div>)
 
-    let preDirection = 0
+    let preDirection = '1'
     let priceDirection = (dir) => {
       if(dir==="1"){
         preDirection = dir
@@ -115,11 +115,11 @@ export default class Main extends React.Component {
       } else if(dir==="2"){
         preDirection = dir
         return <i className="fas fa-caret-down down"/>
-      } else if (preDirection < dir){
-        preDirection = dir
+      } else if (dir==='4' && preDirection === '1'){
+        preDirection = '1'
         return <i className="fas fa-caret-up up"/>
-      }else{
-        preDirection = dir
+      }else if (dir==='4' && preDirection === '2'){
+        preDirection = '2'
         return <i className="fas fa-caret-down down"/>
       }
     }
