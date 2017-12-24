@@ -51,14 +51,15 @@ export default class Main extends React.Component {
     let newSettings = main.store.get('preferences')
     newSettings.currencies[i][option] = e.label
     main.store.set('preferences', newSettings)
-    this.setState({currentSettings:main.store.get('preferences')})    
+    this.setState({currentSettings:main.store.get('preferences')})
   }
 
   handleRefreshPref(){
     main.disconnect()
     main.connect()
-    this.setState({page:'home'})
     notStarted = true
+    
+    this.setState({page:'home',selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]})
   }
 
   handlePageUpdate(page){
