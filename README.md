@@ -9,7 +9,7 @@
 New [version](https://d.pr/free/v/G3xx8s/3KcZxuIC) on the works. Download the stable release or play with the new one (not stable yet)
 
 - To download the last stable release, click [here](https://github.com/geraldoramos/crypto-bar/releases/tag/v1.0.19) (currently available for macOS only)
-- To download the lastest release (unstable and not complete), click [here](https://github.com/geraldoramos/crypto-bar/releases/latest)
+- To download the latest release (unstable and not complete), click [here](https://github.com/geraldoramos/crypto-bar/releases/latest)
 
 ### Build the app locally for development (PR's welcome)
 
