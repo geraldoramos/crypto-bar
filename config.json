@@ -1,51 +1,120 @@
 {
-    "tickers": [{
-        "label": "BTC",
-        "symbol": "BTC",
-        "exchange": ["Coinbase","Bitfinex"],
-        "image": "btcTemplate.png"
-    }, {
-        "label": "ETH",
-        "symbol": "ETH",
-        "exchange": ["Coinbase","Bitfinex"],
-        "image": "ethTemplate.png"
-    }, {
-        "label": "LTC",
-        "symbol": "LTC",
-        "exchange": ["Coinbase","Bitfinex"],
-        "image": "ltcTemplate.png"
-    }, {
-        "label": "XRP",
-        "symbol": "XRP",
-        "exchange": ["Bitfinex"],
-        "image": "xrpTemplate.png"
-    }, {
-        "label": "BCH",
-        "symbol": "BCH",
-        "exchange": ["Coinbase","Bitfinex"],
-        "image": "adaTemplate.png"
-    },
-    {
-        "label": "IOT",
-        "symbol": "IOT",
-        "exchange": ["Bitfinex"],
-        "image": "adaTemplate.png"
-    },
-    {
-        "label": "XMR",
-        "symbol": "XMR",
-        "exchange": ["Bitfinex"],
-        "image": "adaTemplate.png"
-    }],
-
-    "currencies": [{
-        "label": "USD",
-        "symbol": "USD",
-        "prefix": "$"
-    }, {
-        "label": "EUR",
-        "symbol": "EUR",
-        "prefix": "€"
+    "tickers": [
+       {
+          "label": "BTC",
+          "symbol": "BTC",
+          "exchange": [
+             "Coinbase",
+             "Bitfinex"
+          ],
+          "image": "btcTemplate.png"
+       },
+       {
+          "label": "ETH",
+          "symbol": "ETH",
+          "exchange": [
+             "Coinbase",
+             "Bitfinex"
+          ],
+          "image": "ethTemplate.png"
+       },
+       {
+          "label": "LTC",
+          "symbol": "LTC",
+          "exchange": [
+             "Coinbase",
+             "Bitfinex"
+          ],
+          "image": "ltcTemplate.png"
+       },
+       {
+          "label": "XRP",
+          "symbol": "XRP",
+          "exchange": [
+             "Bitfinex"
+          ],
+          "image": "xrpTemplate.png"
+       },
+       {
+          "label": "BCH",
+          "symbol": "BCH",
+          "exchange": [
+             "Coinbase",
+             "Bitfinex"
+          ],
+          "image": "adaTemplate.png"
+       },
+       {
+          "label": "IOT",
+          "symbol": "IOT",
+          "exchange": [
+             "Bitfinex"
+          ],
+          "image": "adaTemplate.png"
+       },
+       {
+          "label": "XMR",
+          "symbol": "XMR",
+          "exchange": [
+             "Bitfinex"
+          ],
+          "image": "adaTemplate.png"
+       }
+    ],
+    "currencies": [
+       {
+          "label": "USD",
+          "symbol": "USD",
+          "prefix": "$"
+       },
+       {
+          "label": "EUR",
+          "symbol": "EUR",
+          "prefix": "€"
+       }
+    ],
+    "defaultPreferences": {
+       "currencies": [
+          {
+             "exchange": "Coinbase",
+             "from": "BTC",
+             "to": "USD",
+             "default": true
+          },
+          {
+             "exchange": "Coinbase",
+             "from": "ETH",
+             "to": "USD",
+             "default": false
+          },
+          {
+             "exchange": "Coinbase",
+             "from": "LTC",
+             "to": "USD",
+             "default": false
+          },
+          {
+             "exchange": "Bitfinex",
+             "from": "XRP",
+             "to": "USD",
+             "default": false
+          },
+          {
+             "exchange": "Coinbase",
+             "from": "BCH",
+             "to": "USD",
+             "default": false
+          },
+          {
+             "exchange": "Bitfinex",
+             "from": "IOT",
+             "to": "USD",
+             "default": false
+          }
+       ],
+       "toCurrency": {
+          "symbol": "USD",
+          "prefix": "$"
+       }
     }
-  ]
-}
+ }

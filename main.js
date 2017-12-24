@@ -2,7 +2,6 @@ import { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } fro
 import log from 'electron-log'
 import { autoUpdater } from "electron-updater"
 import path from 'path'
-import prompt from './prompt'
 import socket from './pricing_service'
 import notification  from './notification_service'
 import Analytics from 'electron-google-analytics';
@@ -13,13 +12,16 @@ import Raven from 'raven'
 import Positioner from 'electron-positioner'
 import Store from 'electron-store'
 const store = new Store();
+let mainWindow
+let updateAvailable = false
+let tray = null
 
-// capture user's unique machine ID
+// Capture user's unique machine ID
 let clientID;
 try {
-    clientID = machineIdSync()
+  clientID = machineIdSync()
 } catch (error) {
-    clientID = 'no-machineid-detected'
+  clientID = 'no-machineid-detected'
 }
 
 //-------------------------------------------------------------------
@@ -31,18 +33,13 @@ log.info('App starting...');
 Raven.config('https://e254805a5b5149d48d6561ae035dd19c:26a8736adf7c4ae08464ac3483eca1d2@sentry.io/260576').install();
 
 //-------------------------------------------------------------------
-// Starting variables
+// Main app logic
 //-------------------------------------------------------------------
-
-let mainWindow
-let updateAvailable = false
-let tray = null
-
 
 const sendStatusToWindow = (text) => {
   log.info(text);
-  
-  if(text === 'Update downloaded'){
+
+  if (text === 'Update downloaded') {
     updateAvailable = true
   }
 
@@ -53,11 +50,10 @@ const sendStatusToWindow = (text) => {
 
 }
 
-function createWindow () {
+function createWindow() {
 
-
+  // Auto Update logic
   autoUpdater.checkForUpdatesAndNotify();
-
 
   autoUpdater.on('checking-for-update', () => {
     sendStatusToWindow('Checking for update...');
@@ -65,7 +61,6 @@ function createWindow () {
   autoUpdater.on('update-available', (info) => {
     sendStatusToWindow('Update available.');
   })
-  
   autoUpdater.on('update-not-available', (info) => {
     sendStatusToWindow('Update not available.');
   })
@@ -78,11 +73,10 @@ function createWindow () {
     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     sendStatusToWindow(log_message);
   })
-  
   autoUpdater.on('update-downloaded', (info) => {
     sendStatusToWindow('Update downloaded');
   });
-   
+
   mainWindow = new BrowserWindow({
     width: 400,
     height: 435,
@@ -94,129 +88,81 @@ function createWindow () {
   })
 
   mainWindow.setVisibleOnAllWorkspaces(true);
-  
   app.dock.hide();
-
   tray = new Tray(path.join(__dirname, 'assets', 'btcTemplate.png'))
   tray.setTitle("Fetching...")
 
+  // helper to get image from config file
   const getImage = type => {
     let crypto = Config.tickers.filter(x => type === x.symbol)[0];
     if (crypto && crypto.image && crypto.image.length > 0) {
-        return path.join(__dirname, 'assets', crypto.image)
+      return path.join(__dirname, 'assets', crypto.image)
     } else {
-        return path.join(__dirname, 'assets', 'blank.png')
+      return path.join(__dirname, 'assets', 'blank.png')
     }
-}
-
-
-setInterval(() => {
-  if (updateAvailable) {
-    mainWindow.webContents.send('update', {
-      updateAvailable: true
-    });
   }
-}, 10000);
 
-// hiden shortcut for debugging
-globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
-  app.dock.show();
-  mainWindow.webContents.openDevTools()
-})
+  // Hidden shortcut for debugging
+  globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
+    app.dock.show();
+    mainWindow.webContents.openDevTools()
+  })
 
-exports.app = app
-
-analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`, clientID })
-  .then((response) => {
+  // Record event of initial load
+  analytics.event('App', 'initialLoad', {
+      evLabel: `version ${app.getVersion()}`,
+      clientID
+    })
+    .then((response) => {
       log.info(response)
-  }).catch((err) => {
+    }).catch((err) => {
       log.error(err)
-  });
+    });
 
-// Heartbeat
-setInterval(() => {
-  analytics.event('App', 'heartBeat', { evLabel: `version ${app.getVersion()}`, clientID })
-  .then((response) => {
-      log.info(response)
-  }).catch((err) => {
-      log.error(err)
-  });
-}, 30000);
+  // Heartbeat and Check for updates
+  setInterval(() => {
+    autoUpdater.checkForUpdatesAndNotify();
+    analytics.event('App', 'heartBeat', {
+        evLabel: `version ${app.getVersion()}`,
+        clientID
+      })
+      .then((response) => {
+        log.info(response)
+      }).catch((err) => {
+        log.error(err)
+      });
+  }, 30000);
 
-
+  // set tray tooltip and load react app (renderer)
   tray.setToolTip('Crypto Bar')
   mainWindow.loadURL('file://' + __dirname + '/index.html')
-  
 
-  let initPreferences = {
-    currencies:[{
-        exchange: 'Coinbase',
-        from: 'BTC',
-        to: 'USD',
-        default:true
-      },
-      {
-        exchange: 'Coinbase',
-        from: 'ETH',
-        to: 'USD',
-        default:false
-      },
-      {
-        exchange: 'Coinbase',
-        from: 'LTC',
-        to: 'USD',
-        default:false
-      },
-      {
-        exchange: 'Bitfinex',
-        from: 'XRP',
-        to: 'USD',
-        default:false
-      },
-      {
-        exchange: 'Coinbase',
-        from: 'BCH',
-        to: 'USD',
-        default:false
-      },
-      {
-        exchange: 'Bitfinex',
-        from: 'IOT',
-        to: 'USD',
-        default:false
-      }],
-      toCurrency: {symbol:'USD',prefix:"$"}
-    }
+  // Get default preferences or use saved preferences
+  store.delete('preferences')
+  store.set('preferences', store.get('preferences') || Config.defaultPreferences);
 
-    store.set('preferences', store.get('preferences') || initPreferences);
+  // socket connection methods
+  let connect = () => {
+    log.info('Connecting to socket')
+    socket.connect(store, mainWindow, tray, ipcMain, getImage, Config)
+  }
 
-    let connect = ()=> {
-      log.info('Connecting to socket')
-      socket.connect(store,mainWindow,tray,ipcMain,getImage,Config)
-    }
+  connect()
 
-    connect()
+  let disconnect = () => {
+    log.info('Disconnecting from socket')
+    socket.disconnect()
+  }
 
-    let disconnect = ()=> {
-      log.info('Disconnecting from socket')
-      socket.disconnect()
-    }
-
-    exports.connect = connect
-    exports.disconnect = disconnect
-    
-
-
+  // position window to the tray area
   const positioner = new Positioner(mainWindow)
   let bounds = tray.getBounds()
   positioner.move('trayCenter', bounds)
 
+  // Main window behavior
   mainWindow.on('blur', () => {
     mainWindow.hide()
   })
-
-exports.store = store
-
   tray.on('click', () => {
     bounds = tray.getBounds()
     positioner.move('trayCenter', bounds)
@@ -228,11 +174,15 @@ exports.store = store
   mainWindow.on('hide', () => {
     tray.setHighlightMode('never')
   })
-
   mainWindow.on('closed', () => {
     mainWindow = null
   })
 
+  // Give renderer access to the following methods
+  exports.connect = connect
+  exports.disconnect = disconnect
+  exports.store = store
+  exports.app = app
 
 }
 
