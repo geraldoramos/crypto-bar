@@ -1,9 +1,9 @@
 {
   "name": "crypto-bar",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "main": "index.js",
   "title": "Crypto Bar",
-  "description":"A menu bar application that updates cryptocurrencies prices in real-time",
+  "description": "A menu bar application that updates cryptocurrencies prices in real-time",
   "author": "Geraldo Ramos",
   "repository": "geraldoramos/crypto-bar",
   "scripts": {
@@ -32,6 +32,7 @@
     "react-loading-animation": "^1.4.0",
     "react-select": "^1.1.0",
     "react-spinkit": "^3.0.0",
+    "react-virtualized-select": "^3.1.0",
     "socket.io": "^2.0.4",
     "socket.io-client": "^2.0.4"
   },
