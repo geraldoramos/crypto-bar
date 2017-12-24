@@ -134,7 +134,7 @@ analytics.event('App', 'initialLoad', { evLabel: `version ${app.getVersion()}`, 
   });
 
 // Heartbeat
-setTimeout(() => {
+setInterval(() => {
   analytics.event('App', 'heartBeat', { evLabel: `version ${app.getVersion()}`, clientID })
   .then((response) => {
       log.info(response)
