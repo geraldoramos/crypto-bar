@@ -25,6 +25,6 @@ npm install && npm start .
  ```
 
 ### License
-This app is distributed under the Creative Commons Zero v1.0 Universal license
+This app is distributed under the Creative Commons Zero v1.0 Universal license.
 
 Follow me on [Twitter](http://twitter.com/geraldoramos)
