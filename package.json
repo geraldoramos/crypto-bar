@@ -25,6 +25,7 @@
     "format-currency": "^1.0.0",
     "money": "^0.2.0",
     "node-machine-id": "^1.1.9",
+    "open": "0.0.5",
     "path": "^0.12.7",
     "raven": "^2.3.0",
     "react": "^15.3.2",

@@ -11,6 +11,7 @@ import {machineIdSync} from 'node-machine-id'
 import Raven from 'raven'
 import Positioner from 'electron-positioner'
 import Store from 'electron-store'
+import open from "open"
 const store = new Store();
 let mainWindow
 let updateAvailable = false
@@ -180,11 +181,14 @@ function createWindow() {
     mainWindow = null
   })
 
+
   // Give renderer access to the following methods
   exports.connect = connect
   exports.disconnect = disconnect
   exports.store = store
   exports.app = app
+  exports.open = open
+
 
 }
 

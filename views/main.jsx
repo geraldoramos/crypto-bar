@@ -31,11 +31,16 @@ export default class Main extends React.Component {
     this.handlePrefUpdate = this.handlePrefUpdate.bind(this);
     this.handlePageUpdate = this.handlePageUpdate.bind(this);
     this.handleRefreshPref = this.handleRefreshPref.bind(this);
+    this.handleOpen = this.handleOpen.bind(this);
   }
 
   handleBox(from, to, price, exchange, prefix){
     ipcRenderer.send('async', {selected:[from,to,price,exchange,prefix]});
     this.setState({selectedBox:from+to+exchange})
+  }
+
+  handleOpen(url){
+    main.open(url)
   }
 
   handleAppUpdate(){
@@ -95,7 +100,7 @@ export default class Main extends React.Component {
   render() {
     
     let Footer = (<div className="footer">
-    <h2><a target="_blank" href="https://github.com/geraldoramos/crypto-bar">Crypto Bar</a> <span className="version">{this.state.version}</span>
+    <h2><a onClick={() => this.handleOpen('https://github.com/geraldoramos/crypto-bar')}>Crypto Bar</a> <span className="version">{this.state.version}</span>
     { this.state.updateAvailable ?
     <span>&nbsp;(Restart to Update)</span> : null}
     </h2>
