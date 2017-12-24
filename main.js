@@ -58,7 +58,9 @@ function createWindow() {
   autoUpdater.on('checking-for-update', () => {
     sendStatusToWindow('Checking for update...');
   })
+  let updateAvailable = false
   autoUpdater.on('update-available', (info) => {
+    updateAvailable = true
     sendStatusToWindow('Update available.');
   })
   autoUpdater.on('update-not-available', (info) => {
@@ -121,7 +123,9 @@ function createWindow() {
 
   // Heartbeat and Check for updates
   setInterval(() => {
-    autoUpdater.checkForUpdatesAndNotify();
+    if(!updateAvailable){
+      autoUpdater.checkForUpdatesAndNotify();
+    }
     analytics.event('App', 'heartBeat', {
         evLabel: `version ${app.getVersion()}`,
         clientID
