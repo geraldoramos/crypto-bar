@@ -215,14 +215,6 @@ setTimeout(() => {
     mainWindow.hide()
   })
 
-  exports.restart = () => {  
-    //Print 6
-    app.relaunch({
-      args: process.argv.slice(1).concat(['--relaunch'])
-  })
-  app.exit(0)
-}
-
 exports.store = store
 
   tray.on('click', () => {
