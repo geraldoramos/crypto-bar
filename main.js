@@ -58,7 +58,6 @@ function createWindow() {
   autoUpdater.on('checking-for-update', () => {
     sendStatusToWindow('Checking for update...');
   })
-  let updateAvailable = false
   autoUpdater.on('update-available', (info) => {
     updateAvailable = true
     sendStatusToWindow('Update available.');
