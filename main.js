@@ -57,7 +57,6 @@ function createWindow() {
     sendStatusToWindow('Checking for update...');
   })
   autoUpdater.on('update-available', (info) => {
-    updateAvailable = true
     sendStatusToWindow('Update available.');
   })
   autoUpdater.on('update-not-available', (info) => {
@@ -73,6 +72,7 @@ function createWindow() {
     sendStatusToWindow(log_message);
   })
   autoUpdater.on('update-downloaded', (info) => {
+    updateAvailable = true
     sendStatusToWindow('Update downloaded');
   });
 
