@@ -2,7 +2,6 @@ import { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } fro
 import log from 'electron-log'
 import { autoUpdater } from "electron-updater"
 import path from 'path'
-import notification  from './notification_service'
 import Analytics from 'electron-google-analytics';
 const analytics = new Analytics('UA-111389782-1');
 import Config from './config.json'
