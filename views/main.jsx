@@ -1,20 +1,22 @@
 'use babel';
 
 import React from 'react';
-let iconColor = {color:'#675BC0'}
 import {ipcRenderer, remote} from 'electron'
-const main = remote.require('./main.js')
-const Config = require('../config.json')
-const formatCurrency = require('format-currency')
 import { Circle } from 'better-react-spinkit'
 import Select from 'react-select'
-import VirtualizedSelect from 'react-virtualized-select';
+import VirtualizedSelect from 'react-virtualized-select'
+import formatCurrency from 'format-currency'
+const main = remote.require('./main.js')
+const Config = require('../config.json')
+const Socket = require('../pricing_service')
 let notStarted = true
+const iconColor = {color:'#675BC0'}
+let prices;
 
 export default class Main extends React.Component {
 
   constructor() {
-    super();
+    super()
     this.state = {
       version:null,
       data:[],
@@ -22,20 +24,25 @@ export default class Main extends React.Component {
       updateInfo:'',
       loading:true,
       page:'home',
+      subpage:'main',
+      prefSubPageData:null,
       currentSettings: {},
       selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]
 
     };
-    this.handleBox = this.handleBox.bind(this);
-    this.handleAppUpdate = this.handleAppUpdate.bind(this);
-    this.handlePrefUpdate = this.handlePrefUpdate.bind(this);
-    this.handlePageUpdate = this.handlePageUpdate.bind(this);
-    this.handleRefreshPref = this.handleRefreshPref.bind(this);
-    this.handleOpen = this.handleOpen.bind(this);
+    this.handleBox = this.handleBox.bind(this)
+    this.handleAppUpdate = this.handleAppUpdate.bind(this)
+    this.handlePrefUpdate = this.handlePrefUpdate.bind(this)
+    this.handlePageUpdate = this.handlePageUpdate.bind(this)
+    this.handleRefreshPref = this.handleRefreshPref.bind(this)
+    this.handleOpen = this.handleOpen.bind(this)
+    this.handlePrefPageUpdate = this.handlePrefPageUpdate.bind(this)
+    this.handleSocket = this.handleSocket.bind(this)
   }
 
   handleBox(from, to, price, exchange, prefix){
-    ipcRenderer.send('async', {selected:[from,to,price,exchange,prefix]});
+    main.tray.setImage(main.getImage(from));
+    main.tray.setTitle(`${prefix}${formatCurrency(price)}`)
     this.setState({selectedBox:from+to+exchange})
   }
 
@@ -55,8 +62,8 @@ export default class Main extends React.Component {
   }
 
   handleRefreshPref(){
-    main.disconnect()
-    main.connect()
+    Socket.disconnect()
+    Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
     notStarted = true
     
     this.setState({page:'home',selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]})
@@ -66,29 +73,33 @@ export default class Main extends React.Component {
     this.setState({page:page})
   }
 
+  handleSocket(data){
+    prices = Object.keys(data).map(key => {
+      return {priceData:data[key], direction: data[key].flag ==='1' ? 'up' : 'down'}
+      })
+    this.setState({data:prices})
+
+    if(prices.length == 1){
+      this.setState({loading:false})
+    }
+
+    // Handle changes in the selected currency for the tray
+    let selectedTray = data[this.state.selectedBox] || data[main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]]
+    main.tray.setImage(main.getImage(selectedTray.from));
+    main.tray.setTitle(`${selectedTray.prefix}${formatCurrency(selectedTray.price)}`)
+  
+  }
+
+  handlePrefPageUpdate(destination, data){
+    this.setState({subpage:destination,prefSubPageData:data})
+  }
+
   componentWillMount(){
 
     this.setState({currentSettings:main.store.get('preferences')})
-    let prices;
 
     // Websocket data
-    ipcRenderer.on('socket' , function(event , data) {
-      prices = Object.keys(data).map(key => {
-        return {priceData:data[key], direction: data[key].flag ==='1' ? 'up' : 'down'}
-        })
-      this.setState({data:prices})
-
-      if(prices.length == 1){
-        this.setState({loading:false})
-      }
-
-      if(notStarted){
-        let selectedTray = data[main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]]
-        ipcRenderer.send('async', {selected:[selectedTray.from,selectedTray.to,selectedTray.price,selectedTray.exchange,selectedTray.prefix]});
-        notStarted = false
-      }
-    
-      }.bind(this));
+    Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
     
       ipcRenderer.on('update' , function(event , result) {
         this.setState({updateAvailable:result.updateAvailable,updateInfo:result.updateInfo})
@@ -101,35 +112,36 @@ export default class Main extends React.Component {
   render() {
     
     let Footer = (<div className="footer">
-    <h2><a onClick={() => this.handleOpen('https://github.com/geraldoramos/crypto-bar')}>Crypto Bar</a> <span className="version">{this.state.version}</span>
+    <h2><a onClick={() => this.handleOpen('https://github.com/geraldoramos/crypto-bar')}>Crypto Bar</a> 
+    <span className="version">{this.state.version}</span>
     { this.state.updateAvailable ?
     <span>&nbsp;(Restart to Update)</span> : null}
     </h2>
     </div>)
 
-    let preDirection = '1'
-    let priceDirection = (dir) => {
-      if(dir==="1"){
-        preDirection = dir
-        return <i className="fas fa-caret-up up"/>
-      } else if(dir==="2"){
-        preDirection = dir
-        return <i className="fas fa-caret-down down"/>
-      } else if (dir==='4' && preDirection === '1'){
-        preDirection = '1'
-        return <i className="fas fa-caret-up up"/>
-      }else if (dir==='4' && preDirection === '2'){
-        preDirection = '2'
-        return <i className="fas fa-caret-down down"/>
-      }
-    }
-
-
+    // Price direction icon
     if(this.state.page === 'home'){
+      let preDirection = '1'
+      let priceDirection = (dir) => {
+        if(dir==="1"){
+          preDirection = dir
+          return <i className="fas fa-caret-up up"/>
+        } else if(dir==="2"){
+          preDirection = dir
+          return <i className="fas fa-caret-down down"/>
+        } else if (dir==='4' && preDirection === '1'){
+          preDirection = '1'
+          return <i className="fas fa-caret-up up"/>
+        }else if (dir==='4' && preDirection === '2'){
+          preDirection = '2'
+          return <i className="fas fa-caret-down down"/>
+        }
+      }
       
       let currencyList = this.state.data.map (x =>{
           return (
-            <div className="box" href="#" onClick={() => this.handleBox(x.priceData.from,x.priceData.to,x.priceData.price,x.priceData.exchange,x.priceData.prefix)}>
+            <div className="box" href="#" onClick={() => 
+            this.handleBox(x.priceData.from,x.priceData.to,x.priceData.price,x.priceData.exchange,x.priceData.prefix)}>
             <div className="currency">{x.priceData.from} <span className="exchange">({x.priceData.exchangeFallback || x.priceData.exchange})</span> </div>
             <div className="price">{x.priceData.prefix}{formatCurrency(x.priceData.price)}&nbsp;
             {x.priceData.volume24h==0 ? null : priceDirection(x.priceData.flag)}</div>
@@ -148,13 +160,12 @@ export default class Main extends React.Component {
         <h2>Waiting...</h2></center></div>)
     })
 
-  
     return (
     <div className="myarrow">
       <div className="page darwin">
         <div className="container">
           <div className="header">
-          <div className="title"><h1><span className="main-title"><i style={iconColor} className="fas fa-signal"/> Monitored Coins</span>
+          <div className="title"><h1><span className="main-title"><i style={iconColor} className="fas fa-signal"/> Dashboard</span>
           <div className="settings" onClick={() => this.handlePageUpdate('settings')}><i style={iconColor} className="fas fa-cog"/></div></h1></div>
           </div>
         <div className="inside">
@@ -177,9 +188,9 @@ export default class Main extends React.Component {
     <VirtualizedSelect
     name="fromOptions"
     className={i > 2 ? 'open-top' : null}
-    style={{width:'90px',margin:'2px'}}
+    style={{width:'80px',margin:'2px'}}
     clearable={false}
-    scrollMenuIntoView={false}
+    scrollMenuIntoView={true}
     value={{label:x.from,value:x.from}}
     onChange={(e) => this.handlePrefUpdate(e,i,'from')}
     options={Config.tickers.map(x=>{return {label:x.label,value:x.value}})}
@@ -187,7 +198,7 @@ export default class Main extends React.Component {
     <VirtualizedSelect
     name="toOptions"
     className={i > 2 ? 'open-top' : null}
-    style={{width:'90px',margin:'2px'}}
+    style={{width:'80px',margin:'2px'}}
     clearable={false}
     scrollMenuIntoView={false}
     value={{label:x.to,value:x.to}}
@@ -197,37 +208,52 @@ export default class Main extends React.Component {
   <VirtualizedSelect
     name="exchange"
     className={i > 2 ? 'open-top' : null}
-    style={{width:'90px',margin:'2px'}}
+    style={{width:'80px',margin:'2px'}}
     clearable={false}
     scrollMenuIntoView={false}
     value={{label:x.exchange,value:x.exchange}}
     onChange={(e) => this.handlePrefUpdate(e,i,'exchange')}
     options={Config.exchanges.map(x=>{return {value:x,label:x}})}
   />
+  {/* Implementation for alerts coming */}
+  {/* <div onClick={(e) => this.handlePrefPageUpdate('alerts',{from:x.from, to:x.to, exchange:x.exchange})}><i className="fas fa-bell bell"/></div> */}
   </div>)
 
-    })
+  })
+
+  let prefOptions = () => {
+    if(this.state.subpage==='main'){
+      return (<div><div className="submenu-subtitle">Select the currencies to monitor (From, To, Exchange)</div>
+      {SubOptions}
+      <center><h2><a onClick={this.handleRefreshPref}>
+      <i className="fas fa-sync-alt"/>&nbsp; Update</a></h2></center></div>)
+    }
+    if(this.state.subpage==='alerts'){
+      return (<div><div className="submenu-subtitle">{`Add new alert for 
+      ${this.state.prefSubPageData.from}/${this.state.prefSubPageData.to}/${this.state.prefSubPageData.exchange}`}</div>
+        <div className="submenuRow">If value [rule] [target]</div>
+        <hr/>
+        <div className="submenu-subtitle">Current alerts for this combination:</div>
+
+        </div>)
+    }
+  }
       
   return (
-  <div className="myarrow">
-    <div className="page darwin">
-      <div className="container">
-        <div className="header">
-        <div className="title"><h1><span className="main-title"><i style={iconColor} className="fas fa-cog"/> Settings</span>
-        <div className="settings" onClick={() => this.handlePageUpdate('home')}><i style={iconColor} className="fas fa-signal"/></div></h1></div>
-        </div>
-      <div className="inside">
-      <div className="submenu-subtitle">Select the currencies to monitor (From, To, Exchange)</div>
-      {SubOptions}
-      <center><h2><a onClick={this.handleRefreshPref}><i className="fas fa-sync-alt"/>&nbsp; Update</a></h2></center>
+    <div className="myarrow">
+      <div className="page darwin">
+        <div className="container">
+          <div className="header">
+          <div className="title"><h1><span className="main-title"><i style={iconColor} className="fas fa-cog"/> Settings</span>
+          <div className="settings" onClick={() => this.handlePageUpdate('home')}><i style={iconColor} className="fas fa-signal"/></div></h1></div>
           </div>
+        <div className="inside">
+          {prefOptions()}
+        </div></div>
         {Footer}
       </div>
-    </div>
-    </div>
-  )
-}
+      </div>)
+    }
 
-}
-
+  }
 }

@@ -2,7 +2,6 @@ import { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } fro
 import log from 'electron-log'
 import { autoUpdater } from "electron-updater"
 import path from 'path'
-import socket from './pricing_service'
 import notification  from './notification_service'
 import Analytics from 'electron-google-analytics';
 const analytics = new Analytics('UA-111389782-1');
@@ -36,7 +35,6 @@ Raven.config('https://e254805a5b5149d48d6561ae035dd19c:26a8736adf7c4ae08464ac348
 //-------------------------------------------------------------------
 // Main app logic
 //-------------------------------------------------------------------
-
 const sendStatusToWindow = (text) => {
   log.info(text);
 
@@ -52,7 +50,6 @@ const sendStatusToWindow = (text) => {
 }
 
 function createWindow() {
-
   // Auto Update logic
   autoUpdater.checkForUpdatesAndNotify();
 
@@ -104,6 +101,7 @@ function createWindow() {
     }
   }
 
+
   // Hidden shortcut for debugging
   globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
     app.dock.show();
@@ -144,19 +142,6 @@ function createWindow() {
   // Get default preferences or use saved preferences
   store.set('preferences', store.get('preferences') || Config.defaultPreferences);
 
-  // socket connection methods
-  let connect = () => {
-    log.info('Connecting to socket')
-    socket.connect(store, mainWindow, tray, ipcMain, getImage, Config)
-  }
-
-  connect()
-
-  let disconnect = () => {
-    log.info('Disconnecting from socket')
-    socket.disconnect()
-  }
-
   // position window to the tray area
   const positioner = new Positioner(mainWindow)
   let bounds = tray.getBounds()
@@ -183,12 +168,11 @@ function createWindow() {
 
 
   // Give renderer access to the following methods
-  exports.connect = connect
-  exports.disconnect = disconnect
   exports.store = store
   exports.app = app
   exports.open = open
-
+  exports.getImage = getImage
+  exports.tray = tray
 
 }
 

@@ -3,9 +3,8 @@
     const axios = require('axios')
     let socket;
 
-
-    // If socket not available for a pair, we use http api instead
-    const HTTP = async(data, mainCurrency, Config) => {
+    // If socket not available for a pair, use http api instead
+    const HTTP = async(data, Config) => {
       const requests = data.map(async(x) => {
         let url = `https://min-api.cryptocompare.com/data/price?fsym=${x.from}&tsyms=${x.to}&e=${x.exchange}`
         let res = await axios.get(url)
@@ -42,18 +41,17 @@
           flag: 4,
           price: res.data[res.to],
           volume24h: 0,
-          prefix: prefix,
-          mainCurrency: mainCurrency
+          prefix: prefix
         }
         return accum
       }, {})
     }
 
     let Socket = {
-      connect: (store, mainWindow, tray, ipcMain, getImage, Config) => {
+
+      connect: (store, tray,  getImage, Config, state) => {
         socket = require('socket.io-client')('https://streamer.cryptocompare.com/');
         let selectedCurrencies = store.get('preferences').currencies
-        let mainCurrency = selectedCurrencies.filter(x => x.default).map(x => x.from + x.to + x.exchange)[0]
         let data = {}
         let dataBkp = {}
         let dataFallback = {}
@@ -66,22 +64,12 @@
           subs: subscription
         });
 
-        ipcMain.on('async', (event, arg) => {
-          if (arg.selected) {
-            tray.setImage(getImage(arg.selected[0]));
-            tray.setTitle(`${arg.selected[4]}${formatCurrency(arg.selected[2])}`)
-            mainCurrency = arg.selected[0] + arg.selected[1] + arg.selected[3]
-          }
-
-        });
-
-
-        HTTP(selectedCurrencies, mainCurrency, Config).then(result => {
+        HTTP(selectedCurrencies, Config).then(result => {
           dataBkp = result
         })
 
         setInterval(() => {
-          HTTP(selectedCurrencies, mainCurrency, Config).then(result => {
+          HTTP(selectedCurrencies, Config).then(result => {
             dataBkp = result
           })
         }, 30000);
@@ -90,7 +78,6 @@
 
           let messageArray = message.split('~')
 
-          // console.log(message)
           subscription.map(x => {
             let xArray = x.split('~')
             if (xArray[2] === messageArray[2] && xArray[3] === messageArray[3]) {
@@ -104,20 +91,13 @@
                   flag: concatData[4],
                   price: concatData[5],
                   volume24h: concatData[10],
-                  prefix: concatData[13],
-                  mainCurrency: mainCurrency
-                }
-
-                if (concatData[2] + concatData[3] + concatData[1] == mainCurrency) {
-                  tray.setImage(getImage(concatData[2]));
-                  tray.setTitle(`${data[concatData[2]+concatData[3]+concatData[1]].prefix}${formatCurrency(data[concatData[2]+concatData[3]+concatData[1]].price)}`)
+                  prefix: concatData[13]
                 }
               }
-
             }
           })
 
-          mainWindow.webContents.send('socket', Object.assign(dataBkp, data));
+          state(Object.assign(dataBkp, data))
 
         });
 

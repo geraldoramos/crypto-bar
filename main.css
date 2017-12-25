@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:100,300,400,600');
 
-
 .myarrow {
 position: relative;
 padding: 12px 0;
@@ -201,9 +200,24 @@ vertical-align: middle;
     vertical-align: middle;
 }
 
-/* i{
-color:#675BC0;
-} */
+.bell{
+    color: #adb5ba;
+    font-size:14px;
+}
+
+hr{
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #e7eaec;
+    margin: auto;
+    padding: 0; 
+    width:50%;
+}
+
+.bell:hover{
+    color:#675BC0;
+}
 
 .version{
 color:#92A0AA;
