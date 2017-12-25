@@ -98,16 +98,26 @@ export default class Main extends React.Component {
   }
 
   componentWillMount(){
+    // Detect internet connection
     window.addEventListener('online',  this.handleRefreshPref)
     window.addEventListener('offline',  this.handleOffline)
 
     this.setState({currentSettings:main.store.get('preferences')})
     // Websocket data
     Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
-    
+
+    // Handle main events
     ipcRenderer.on('update' , function(event , result) {
         this.setState({updateAvailable:result.updateAvailable,updateInfo:result.updateInfo})
         console.log(result)
+    }.bind(this))
+
+    ipcRenderer.on('suspend' , function(event , result) {
+      this.handleOffline()
+    }.bind(this))
+
+    ipcRenderer.on('resume' , function(event , result) {
+      this.handleRefreshPref()
     }.bind(this))
 
     this.setState({version:main.app.getVersion()})

@@ -1,4 +1,4 @@
-import { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray } from 'electron'
+import { app, globalShortcut, BrowserWindow, Menu, protocol, ipcMain, Tray, powerMonitor } from 'electron'
 import log from 'electron-log'
 import { autoUpdater } from "electron-updater"
 import path from 'path'
@@ -146,6 +146,16 @@ function createWindow() {
   let bounds = tray.getBounds()
   positioner.move('trayCenter', bounds)
 
+  
+  // Handle sleep/resume events
+  powerMonitor.on('suspend', () => {
+    mainWindow.webContents.send('suspend', 'suspended');
+  })
+  powerMonitor.on('resume', () => {
+    mainWindow.webContents.send('resume', 'resumed');
+  })
+
+
   // Main window behavior
   mainWindow.on('blur', () => {
     mainWindow.hide()
@@ -164,7 +174,6 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
-
 
   // Give renderer access to the following methods
   exports.store = store
