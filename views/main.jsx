@@ -9,7 +9,6 @@ import formatCurrency from 'format-currency'
 const main = remote.require('./main.js')
 const Config = require('../config.json')
 const Socket = require('../pricing_service')
-let notStarted = true
 const iconColor = {color:'#675BC0'}
 let prices;
 
@@ -27,7 +26,8 @@ export default class Main extends React.Component {
       subpage:'main',
       prefSubPageData:null,
       currentSettings: {},
-      selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]
+      selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0],
+      internetOffline: false
 
     };
     this.handleBox = this.handleBox.bind(this)
@@ -38,6 +38,7 @@ export default class Main extends React.Component {
     this.handleOpen = this.handleOpen.bind(this)
     this.handlePrefPageUpdate = this.handlePrefPageUpdate.bind(this)
     this.handleSocket = this.handleSocket.bind(this)
+    this.handleOffline = this.handleOffline.bind(this)
   }
 
   handleBox(from, to, price, exchange, prefix){
@@ -64,9 +65,7 @@ export default class Main extends React.Component {
   handleRefreshPref(){
     Socket.disconnect()
     Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
-    notStarted = true
-    
-    this.setState({page:'home',selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]})
+    this.setState({page:'home',internetOffline:false, selectedBox: main.store.get('preferences').currencies.filter(x=>x.default).map(x=>x.from+x.to+x.exchange)[0]})
   }
 
   handlePageUpdate(page){
@@ -90,26 +89,52 @@ export default class Main extends React.Component {
   
   }
 
+  handleOffline(){
+    this.setState({internetOffline:true})
+  }
+
   handlePrefPageUpdate(destination, data){
     this.setState({subpage:destination,prefSubPageData:data})
   }
 
   componentWillMount(){
+    window.addEventListener('online',  this.handleRefreshPref)
+    window.addEventListener('offline',  this.handleOffline)
 
     this.setState({currentSettings:main.store.get('preferences')})
-
     // Websocket data
     Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
     
-      ipcRenderer.on('update' , function(event , result) {
+    ipcRenderer.on('update' , function(event , result) {
         this.setState({updateAvailable:result.updateAvailable,updateInfo:result.updateInfo})
         console.log(result)
-
     }.bind(this))
+
     this.setState({version:main.app.getVersion()})
   }
 
   render() {
+
+    if(this.state.internetOffline){
+      return (
+        <div className="myarrow">
+        <div className="page darwin">
+          <div className="container">
+            <div className="header">
+            <div className="title"><h1><span className="main-title"><i style={iconColor} className="fas fa-signal"/> Dashboard</span>
+            <div className="settings" onClick={() => this.handlePageUpdate('settings')}><i style={iconColor} className="fas fa-cog"/></div></h1></div>
+            </div>
+          <div className="inside">
+              <br/>
+              <center><i style={iconColor} className="fas fa-frown"/>
+              <h2> No internet Connection </h2></center>
+              </div>
+              {Footer} 
+          </div>
+        </div>
+        </div>
+      )
+    }
     
     let Footer = (<div className="footer">
     <h2><a onClick={() => this.handleOpen('https://github.com/geraldoramos/crypto-bar')}>Crypto Bar </a> 
