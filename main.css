@@ -85,9 +85,6 @@ float: right;
     border: 1px solid white!important;
 }
 
-/* .Select-menu{
-    overflow:hidden!important;
-} */
 
 .Select-value{
     color:white!important;
@@ -241,7 +238,7 @@ background: white;
 display: flex;
 flex-direction: column;
 width: 340px;
-height: 540px;
+height: 430px;
 margin: 0 auto;
 }
 

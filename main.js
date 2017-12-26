@@ -76,7 +76,7 @@ function createWindow() {
   });
 
   mainWindow = new BrowserWindow({
-    width: 400,
+    width: 340,
     height: 435,
     transparent: true,
     frame: false,
