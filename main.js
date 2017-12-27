@@ -100,7 +100,6 @@ function createWindow() {
     }
   }
 
-
   // Hidden shortcut for debugging
   globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
     app.dock.show();
@@ -140,13 +139,12 @@ function createWindow() {
 
   // Get default preferences or use saved preferences
   store.set('preferences', store.get('preferences') || Config.defaultPreferences);
-
+  
   // position window to the tray area
   const positioner = new Positioner(mainWindow)
   let bounds = tray.getBounds()
   positioner.move('trayCenter', bounds)
 
-  
   // Handle sleep/resume events
   powerMonitor.on('suspend', () => {
     mainWindow.webContents.send('suspend', 'suspended');
@@ -154,7 +152,6 @@ function createWindow() {
   powerMonitor.on('resume', () => {
     mainWindow.webContents.send('resume', 'resumed');
   })
-
 
   // Main window behavior
   mainWindow.on('blur', () => {
@@ -181,7 +178,6 @@ function createWindow() {
   exports.open = open
   exports.getImage = getImage
   exports.tray = tray
-
 }
 
 app.on('ready', createWindow)
