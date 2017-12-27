@@ -3,7 +3,7 @@
     const axios = require('axios')
     let socket;
 
-    // If socket not available for a pair, use http api instead
+    // HTTP API is used as the primary source of prices
     const HTTP = async(data, Config) => {
       const requests = data.map(async(x) => {
         let url = `https://min-api.cryptocompare.com/data/price?fsym=${x.from}&tsyms=${x.to}&e=${x.exchange}`
