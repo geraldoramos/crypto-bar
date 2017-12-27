@@ -74,6 +74,10 @@ text-align: center;
 float: right;
 }
 
+.subpage-back{
+    float: left;
+}
+
 .Select{
     font-size: 11px;
     font-family: 'Open Sans', sans-serif;
@@ -115,7 +119,7 @@ margin: 10px;
 }
 
 .box{
-margin: 5px auto;
+margin: 5px;
 width: 150px;
 height: 100px;
 background: #FFFFFF;
@@ -156,7 +160,7 @@ font-weight: 300;
 }
 
 .submenu-subtitle{
-    margin-top:7px;
+    margin:10px 20px 10px 8px;
     padding-bottom: 3px;
     text-align: center;
     font-size: 12px;
@@ -168,12 +172,71 @@ font-weight: 300;
     border-bottom: 2px solid #675BC0;
 }
 
-.title{
-margin: 10px 10px 0px 0;
+.button {
+    background-color: #c6ced4;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 3px 10px 0;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
 }
 
-.main-title{
-    padding-left: 25px;
+.button:hover{
+    background-color: #675BC0;
+}
+
+.button-inline{
+    margin: 0 auto;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.title{
+margin: 10px 15px 0px 15px;
+}
+
+.empty-list{
+    font-size: 14px;
+    text-align: center;
+    margin:15px 0 15px 0;
+    color:silver;
+
+}
+
+
+.currencies-item{
+    color: #92A0AA!important;
+    font-size: 14px;
+    font-weight: 300;
+    text-align: center;
+    padding:11px 30px 11px 30px;
+    border-top: 1px solid #F3F4F4;
+
+}
+
+.currencies-item:hover{
+    background: white;
+}
+
+.add-pair{
+    text-align: center;
+    color:#C6CED4
+}
+
+.add-pair:hover{
+    color:#675BC0
+}
+
+.erase{
+    color: transparent;
+    float:right;
+}
+
+.currencies-item:hover .erase { 
+    color:#D0021B;
 }
 
 .inside{
@@ -206,10 +269,10 @@ hr{
     display: block;
     height: 1px;
     border: 0;
-    border-top: 1px solid #e7eaec;
+    border-top: 1px solid #F3F4F4;
     margin: auto;
     padding: 0; 
-    width:50%;
+    width:100%;
 }
 
 .bell:hover{
@@ -241,6 +304,7 @@ width: 340px;
 height: 430px;
 margin: 0 auto;
 }
+
 
 .darwin.page {
 border-radius: 5px;
