@@ -5768,54 +5768,781 @@
     "label": "BRD",
     "symbol": "BRD"
   }],
-  "currencies": [{
-      "label": "USD",
-      "symbol": "USD",
-      "prefix": "$"
-    },
-    {
-      "label": "EUR",
-      "symbol": "EUR",
-      "prefix": "€"
-    },
-    {
-      "label": "GBP",
-      "symbol": "GBP",
-      "prefix": "£"
-    }, {
-      "label": "BRL",
-      "symbol": "BRL",
-      "prefix": "R$"
-    }, {
-      "label": "MXN",
-      "symbol": "MXN",
-      "prefix": "$"
-    },
-    {
-      "label": "CAD",
-      "symbol": "CAD",
-      "prefix": "C$"
-    },
-    {
-      "label": "AUD",
-      "symbol": "AUD",
-      "prefix": "A$"
-    },
-    {
-      "label": "INR",
-      "symbol": "INR",
-      "prefix": "₹"
-    },
-    {
-      "label": "CNY",
-      "symbol": "CNY",
-      "prefix": "元"
-    },
-    {
-      "label": "JPY",
-      "symbol": "JPY",
-      "prefix": "¥"
-    },
+  "currencies": [  {
+    "prefix": "ج.م",
+    "symbol": "EGP",
+    "label": "EGP"
+  },
+  {
+    "prefix": "ل.س",
+    "symbol": "SYP",
+    "label": "SYP"
+  },
+  {
+    "prefix": "$",
+    "symbol": "ARS",
+    "label": "ARS"
+  },
+  {
+    "prefix": "$",
+    "symbol": "AUD",
+    "label": "AUD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "BBD",
+    "label": "BBD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "BMD",
+    "label": "BMD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "BND",
+    "label": "BND"
+  },
+  {
+    "prefix": "$",
+    "symbol": "BSD",
+    "label": "BSD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "BZD",
+    "label": "BZD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "CAD",
+    "label": "CAD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "CLP",
+    "label": "CLP"
+  },
+  {
+    "prefix": "$",
+    "symbol": "COP",
+    "label": "COP"
+  },
+  {
+    "prefix": "$",
+    "symbol": "CUC",
+    "label": "CUC"
+  },
+  {
+    "prefix": "$",
+    "symbol": "CUP",
+    "label": "CUP"
+  },
+  {
+    "prefix": "$",
+    "symbol": "CVE",
+    "label": "CVE"
+  },
+  {
+    "prefix": "$",
+    "symbol": "DOP",
+    "label": "DOP"
+  },
+  {
+    "prefix": "$",
+    "symbol": "FJD",
+    "label": "FJD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "GYD",
+    "label": "GYD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "HKD",
+    "label": "HKD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "JMD",
+    "label": "JMD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "KYD",
+    "label": "KYD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "LRD",
+    "label": "LRD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "MXN",
+    "label": "MXN"
+  },
+  {
+    "prefix": "$",
+    "symbol": "NAD",
+    "label": "NAD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "NZD",
+    "label": "NZD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "SBD",
+    "label": "SBD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "SGD",
+    "label": "SGD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "SRD",
+    "label": "SRD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "TTD",
+    "label": "TTD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "TWD",
+    "label": "TWD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "USD",
+    "label": "USD"
+  },
+  {
+    "prefix": "$",
+    "symbol": "UYU",
+    "label": "UYU"
+  },
+  {
+    "prefix": "$",
+    "symbol": "XCD",
+    "label": "XCD"
+  },
+  {
+    "prefix": ".د.ب",
+    "symbol": "BHD",
+    "label": "BHD"
+  },
+  {
+    "prefix": ".ރ",
+    "symbol": "MVR",
+    "label": "MVR"
+  },
+  {
+    "prefix": "Ar",
+    "symbol": "MGA",
+    "label": "MGA"
+  },
+  {
+    "prefix": "B/.",
+    "symbol": "PAB",
+    "label": "PAB"
+  },
+  {
+    "prefix": "Br",
+    "symbol": "BYN",
+    "label": "BYN"
+  },
+  {
+    "prefix": "Br",
+    "symbol": "ETB",
+    "label": "ETB"
+  },
+  {
+    "prefix": "Bs",
+    "symbol": "VEF",
+    "label": "VEF"
+  },
+  {
+    "prefix": "Bs.",
+    "symbol": "BOB",
+    "label": "BOB"
+  },
+  {
+    "prefix": "C$",
+    "symbol": "NIO",
+    "label": "NIO"
+  },
+  {
+    "prefix": "D",
+    "symbol": "GMD",
+    "label": "GMD"
+  },
+  {
+    "prefix": "Db",
+    "symbol": "STD",
+    "label": "STD"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "BIF",
+    "label": "BIF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "CDF",
+    "label": "CDF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "CHF",
+    "label": "CHF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "DJF",
+    "label": "DJF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "GNF",
+    "label": "GNF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "KMF",
+    "label": "KMF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "RWF",
+    "label": "RWF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "XAF",
+    "label": "XAF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "XOF",
+    "label": "XOF"
+  },
+  {
+    "prefix": "Fr",
+    "symbol": "XPF",
+    "label": "XPF"
+  },
+  {
+    "prefix": "Ft",
+    "symbol": "HUF",
+    "label": "HUF"
+  },
+  {
+    "prefix": "G",
+    "symbol": "HTG",
+    "label": "HTG"
+  },
+  {
+    "prefix": "K",
+    "symbol": "PGK",
+    "label": "PGK"
+  },
+  {
+    "prefix": "Ks",
+    "symbol": "MMK",
+    "label": "MMK"
+  },
+  {
+    "prefix": "Kz",
+    "symbol": "AOA",
+    "label": "AOA"
+  },
+  {
+    "prefix": "Kč",
+    "symbol": "CZK",
+    "label": "CZK"
+  },
+  {
+    "prefix": "L",
+    "symbol": "ALL",
+    "label": "ALL"
+  },
+  {
+    "prefix": "L",
+    "symbol": "HNL",
+    "label": "HNL"
+  },
+  {
+    "prefix": "L",
+    "symbol": "LSL",
+    "label": "LSL"
+  },
+  {
+    "prefix": "L",
+    "symbol": "MDL",
+    "label": "MDL"
+  },
+  {
+    "prefix": "L",
+    "symbol": "SZL",
+    "label": "SZL"
+  },
+  {
+    "prefix": "Le",
+    "symbol": "SLL",
+    "label": "SLL"
+  },
+  {
+    "prefix": "MK",
+    "symbol": "MWK",
+    "label": "MWK"
+  },
+  {
+    "prefix": "MT",
+    "symbol": "MZN",
+    "label": "MZN"
+  },
+  {
+    "prefix": "Nfk",
+    "symbol": "ERN",
+    "label": "ERN"
+  },
+  {
+    "prefix": "Nu.",
+    "symbol": "BTN",
+    "label": "BTN"
+  },
+  {
+    "prefix": "P",
+    "symbol": "BWP",
+    "label": "BWP"
+  },
+  {
+    "prefix": "P",
+    "symbol": "MOP",
+    "label": "MOP"
+  },
+  {
+    "prefix": "Q",
+    "symbol": "GTQ",
+    "label": "GTQ"
+  },
+  {
+    "prefix": "R$",
+    "symbol": "BRL",
+    "label": "BRL"
+  },
+  {
+    "prefix": "R",
+    "symbol": "ZAR",
+    "label": "ZAR"
+  },
+  {
+    "prefix": "RM",
+    "symbol": "MYR",
+    "label": "MYR"
+  },
+  {
+    "prefix": "Rp",
+    "symbol": "IDR",
+    "label": "IDR"
+  },
+  {
+    "prefix": "Rs",
+    "symbol": "ZAR",
+    "label": "ZAR"
+  },
+  {
+    "prefix": "S/.",
+    "symbol": "PEN",
+    "label": "PEN"
+  },
+  {
+    "prefix": "Sh",
+    "symbol": "KES",
+    "label": "KES"
+  },
+  {
+    "prefix": "Sh",
+    "symbol": "SOS",
+    "label": "SOS"
+  },
+  {
+    "prefix": "Sh",
+    "symbol": "TZS",
+    "label": "TZS"
+  },
+  {
+    "prefix": "Sh",
+    "symbol": "UGX",
+    "label": "UGX"
+  },
+  {
+    "prefix": "T$",
+    "symbol": "TOP",
+    "label": "TOP"
+  },
+  {
+    "prefix": "T",
+    "symbol": "WST",
+    "label": "WST"
+  },
+  {
+    "prefix": "UM",
+    "symbol": "MRO",
+    "label": "MRO"
+  },
+  {
+    "prefix": "Vt",
+    "symbol": "VUV",
+    "label": "VUV"
+  },
+  {
+    "prefix": "ZK",
+    "symbol": "ZMW",
+    "label": "ZMW"
+  },
+  {
+    "prefix": "kn",
+    "symbol": "HRK",
+    "label": "HRK"
+  },
+  {
+    "prefix": "kr",
+    "symbol": "DKK",
+    "label": "DKK"
+  },
+  {
+    "prefix": "kr",
+    "symbol": "ISK",
+    "label": "ISK"
+  },
+  {
+    "prefix": "kr",
+    "symbol": "NOK",
+    "label": "NOK"
+  },
+  {
+    "prefix": "kr",
+    "symbol": "SEK",
+    "label": "SEK"
+  },
+  {
+    "prefix": "lei",
+    "symbol": "RON",
+    "label": "RON"
+  },
+  {
+    "prefix": "m",
+    "symbol": "TMT",
+    "label": "TMT"
+  },
+  {
+    "prefix": "prefix",
+    "symbol": "symbol",
+    "label": "label"
+  },
+  {
+    "prefix": "zł",
+    "symbol": "PLN",
+    "label": "PLN"
+  },
+  {
+    "prefix": "£",
+    "symbol": "FKP",
+    "label": "FKP"
+  },
+  {
+    "prefix": "£",
+    "symbol": "GBP",
+    "label": "GBP"
+  },
+  {
+    "prefix": "£",
+    "symbol": "GIP",
+    "label": "GIP"
+  },
+  {
+    "prefix": "£",
+    "symbol": "SHP",
+    "label": "SHP"
+  },
+  {
+    "prefix": "£",
+    "symbol": "SSP",
+    "label": "SSP"
+  },
+  {
+    "prefix": "¥",
+    "symbol": "JPY",
+    "label": "JPY"
+  },
+  {
+    "prefix": "ƒ",
+    "symbol": "ANG",
+    "label": "ANG"
+  },
+  {
+    "prefix": "ƒ",
+    "symbol": "AWG",
+    "label": "AWG"
+  },
+  {
+    "prefix": "ЅМ",
+    "symbol": "TJS",
+    "label": "TJS"
+  },
+  {
+    "prefix": "ден",
+    "symbol": "MKD",
+    "label": "MKD"
+  },
+  {
+    "prefix": "дин.",
+    "symbol": "RSD",
+    "label": "RSD"
+  },
+  {
+    "prefix": "лв",
+    "symbol": "BGN",
+    "label": "BGN"
+  },
+  {
+    "prefix": "с",
+    "symbol": "KGS",
+    "label": "KGS"
+  },
+  {
+    "prefix": "؋",
+    "symbol": "AFN",
+    "label": "AFN"
+  },
+  {
+    "prefix": "ج.س.",
+    "symbol": "SDG",
+    "label": "SDG"
+  },
+  {
+    "prefix": "د. م.",
+    "symbol": "MAD",
+    "label": "MAD"
+  },
+  {
+    "prefix": "د.إ",
+    "symbol": "AED",
+    "label": "AED"
+  },
+  {
+    "prefix": "د.ا",
+    "symbol": "JOD",
+    "label": "JOD"
+  },
+  {
+    "prefix": "د.ت",
+    "symbol": "TND",
+    "label": "TND"
+  },
+  {
+    "prefix": "د.ج",
+    "symbol": "DZD",
+    "label": "DZD"
+  },
+  {
+    "prefix": "د.ك",
+    "symbol": "KWD",
+    "label": "KWD"
+  },
+  {
+    "prefix": "د.م.",
+    "symbol": "MAD",
+    "label": "MAD"
+  },
+  {
+    "prefix": "ر.س",
+    "symbol": "SAR",
+    "label": "SAR"
+  },
+  {
+    "prefix": "ر.ع.",
+    "symbol": "OMR",
+    "label": "OMR"
+  },
+  {
+    "prefix": "ر.ق",
+    "symbol": "QAR",
+    "label": "QAR"
+  },
+  {
+    "prefix": "ع.د",
+    "symbol": "IQD",
+    "label": "IQD"
+  },
+  {
+    "prefix": "ل.د",
+    "symbol": "LYD",
+    "label": "LYD"
+  },
+  {
+    "prefix": "ل.ل",
+    "symbol": "LBP",
+    "label": "LBP"
+  },
+  {
+    "prefix": "৳",
+    "symbol": "BDT",
+    "label": "BDT"
+  },
+  {
+    "prefix": "රු",
+    "symbol": "LKR",
+    "label": "LKR"
+  },
+  {
+    "prefix": "฿",
+    "symbol": "THB",
+    "label": "THB"
+  },
+  {
+    "prefix": "៛",
+    "symbol": "KHR",
+    "label": "KHR"
+  },
+  {
+    "prefix": "₡",
+    "symbol": "CRC",
+    "label": "CRC"
+  },
+  {
+    "prefix": "₦",
+    "symbol": "NGN",
+    "label": "NGN"
+  },
+  {
+    "prefix": "₨",
+    "symbol": "MUR",
+    "label": "MUR"
+  },
+  {
+    "prefix": "₨",
+    "symbol": "NPR",
+    "label": "NPR"
+  },
+  {
+    "prefix": "₨",
+    "symbol": "PKR",
+    "label": "PKR"
+  },
+  {
+    "prefix": "₨",
+    "symbol": "SCR",
+    "label": "SCR"
+  },
+  {
+    "prefix": "₩",
+    "symbol": "KPW",
+    "label": "KPW"
+  },
+  {
+    "prefix": "₩",
+    "symbol": "KRW",
+    "label": "KRW"
+  },
+  {
+    "prefix": "₪",
+    "symbol": "ILS",
+    "label": "ILS"
+  },
+  {
+    "prefix": "₫",
+    "symbol": "VND",
+    "label": "VND"
+  },
+  {
+    "prefix": "€",
+    "symbol": "EUR",
+    "label": "EUR"
+  },
+  {
+    "prefix": "₭",
+    "symbol": "LAK",
+    "label": "LAK"
+  },
+  {
+    "prefix": "₮",
+    "symbol": "MNT",
+    "label": "MNT"
+  },
+  {
+    "prefix": "₱",
+    "symbol": "PHP",
+    "label": "PHP"
+  },
+  {
+    "prefix": "₲",
+    "symbol": "PYG",
+    "label": "PYG"
+  },
+  {
+    "prefix": "₴",
+    "symbol": "UAH",
+    "label": "UAH"
+  },
+  {
+    "prefix": "₵",
+    "symbol": "GHS",
+    "label": "GHS"
+  },
+  {
+    "prefix": "₸",
+    "symbol": "KZT",
+    "label": "KZT"
+  },
+  {
+    "prefix": "₹",
+    "symbol": "INR",
+    "label": "INR"
+  },
+  {
+    "prefix": "₺",
+    "symbol": "TRY",
+    "label": "TRY"
+  },
+  {
+    "prefix": "₼",
+    "symbol": "AZN",
+    "label": "AZN"
+  },
+  {
+    "prefix": "₽",
+    "symbol": "RUB",
+    "label": "RUB"
+  },
+  {
+    "prefix": "₾",
+    "symbol": "GEL",
+    "label": "GEL"
+  },
+  {
+    "prefix": "元",
+    "symbol": "CNY",
+    "label": "CNY"
+  },
+  {
+    "prefix": "﷼",
+    "symbol": "IRR",
+    "label": "IRR"
+  },
+  {
+    "prefix": "﷼",
+    "symbol": "YER",
+    "label": "YER"
+  },
     {
       "label": "BTC",
       "symbol": "BTC",
