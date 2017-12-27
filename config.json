@@ -5817,6 +5817,11 @@
       "prefix": "¥"
     },
     {
+      "label": "KRW",
+      "symbol": "KRW",
+      "prefix": "₩"
+    },
+    {
       "label": "BTC",
       "symbol": "BTC",
       "prefix": "Ƀ"
