@@ -202,7 +202,9 @@ export default class Main extends React.Component {
     // Handle main events
     ipcRenderer.on('update' , function(event , result) {
         this.setState({updateAvailable:result.updateAvailable,updateInfo:result.updateInfo})
-        console.log(result)
+        if(result.updateAvailable){
+          console.log(result)
+        }
     }.bind(this))
 
     ipcRenderer.on('suspend' , function(event , result) {
