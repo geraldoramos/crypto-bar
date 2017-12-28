@@ -1,6 +1,7 @@
     let currentPrice = {};
     const formatCurrency = require('format-currency')
     const axios = require('axios')
+    const _ = require('underscore')
     let socket;
 
     // HTTP API is used as the primary source of prices
@@ -46,6 +47,7 @@
         return accum
       }, {})
     }
+    let refreshIntervalId;
 
     let Socket = {
 
@@ -68,14 +70,25 @@
           dataBkp = result
         })
 
-        setInterval(() => {
+        // remove previous interval if existing
+        if(refreshIntervalId){
+          clearInterval(refreshIntervalId);
+        }
+
+        // create new interval for pooling
+        refreshIntervalId = setInterval(() => {
           HTTP(selectedCurrencies, Config).then(result => {
             dataBkp = result
           })
         }, 30000);
 
-        socket.on("m", message => {
+        state(Object.assign(dataBkp, data))
 
+        // throttle state updates to prevent performance degradation
+        let throttle = _.throttle(state,5000)
+
+        socket.on("m", message => {
+           
           let messageArray = message.split('~')
 
           subscription.map(x => {
@@ -96,9 +109,7 @@
               }
             }
           })
-
-          state(Object.assign(dataBkp, data))
-
+          throttle(Object.assign(dataBkp, data))
         });
 
       },
