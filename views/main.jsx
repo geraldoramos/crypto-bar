@@ -144,17 +144,20 @@ export default class Main extends React.Component {
       })
     this.setState({data:prices})
 
-    if(prices.length > 0 || main.store.get('preferences').currencies.length == 0 ){
+    if(prices.length > 0 ){
       this.setState({loading:false})
     }
-    // Handle changes in the selected currency for the tray
-    let selectedTray = data[main.store.get('preferences').currencies.filter(x=>x.default)
-     .map(x=>x.from+x.to+x.exchange)[0]] || data[main.store.get('preferences').currencies
-     .map(x=>x.from+x.to+x.exchange)[0]]
 
+    if(prices.length == 0 && main.store.get('preferences').currencies.length !== 0 ){
+      this.setState({loading:true})
+    }
+  
     try {
+      // Handle changes in the selected currency for the tray
+      let selectedTray = main.store.get('preferences').currencies.filter(x=>x.default)[0] || main.store.get('preferences').currencies[0]
+      let trayData = data[selectedTray.from+selectedTray.to+selectedTray.exchange]
       main.tray.setImage(main.getImage(selectedTray.from));
-      main.tray.setTitle(`${selectedTray.prefix}${formatCurrency(selectedTray.price)}`)  
+      main.tray.setTitle(`${trayData.prefix}${formatCurrency(trayData.price)}`)  
     } catch (error) {
       console.log("Couldn't change the tray image")
     }
@@ -197,7 +200,14 @@ export default class Main extends React.Component {
     this.setState({version:main.app.getVersion()})
 
     // Websocket data
-    Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
+    try {
+      Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
+    } catch (error) {
+      this.setState({loading:true})
+      Socket.disconnect()
+      Socket.connect(main.store, main.tray, main.getImage, Config, this.handleSocket)
+    }
+    
 
     // Handle main events
     ipcRenderer.on('update' , function(event , result) {
