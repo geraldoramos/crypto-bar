@@ -138,28 +138,42 @@ export default class Main extends React.Component {
 
   }
 
-  handleSocket(data){
-    prices = Object.keys(data).map(key => {
-      return {priceData:data[key], direction: data[key].flag ==='1' ? 'up' : 'down'}
+  handleSocket(data) {
+    if (main.store.get('preferences').currencies.length !== 0) {
+      prices = Object.keys(data).map(key => {
+        return {
+          priceData: data[key],
+          direction: data[key].flag === '1' ? 'up' : 'down'
+        }
       })
-    this.setState({data:prices})
+      this.setState({data: prices})
 
-    if(prices.length > 0 ){
-      this.setState({loading:false})
-    }
+      if (prices.length > 0) {
+        this.setState({loading: false})
+      }
 
-    if(prices.length == 0 && main.store.get('preferences').currencies.length !== 0 ){
-      this.setState({loading:true})
-    }
-  
-    try {
-      // Handle changes in the selected currency for the tray
-      let selectedTray = main.store.get('preferences').currencies.filter(x=>x.default)[0] || main.store.get('preferences').currencies[0]
-      let trayData = data[selectedTray.from+selectedTray.to+selectedTray.exchange]
-      main.tray.setImage(main.getImage(selectedTray.from));
-      main.tray.setTitle(`${trayData.prefix}${formatCurrency(trayData.price)}`)  
-    } catch (error) {
-      console.log("Couldn't change the tray image")
+      if (prices.length == 0) {
+        this.setState({loading: true})
+      }
+
+      try {
+        // Handle changes in the selected currency for the tray
+        let selectedTray = main.store.get('preferences').currencies.filter(x => x.default)[0] || main.store.get('preferences').currencies[0]
+        let trayData = data[selectedTray.from + selectedTray.to + selectedTray.exchange]
+        main.tray.setImage(main.getImage(selectedTray.from));
+        main.tray.setTitle(`${trayData.prefix}${formatCurrency(trayData.price)}`)
+      } catch (error) {
+        console.log("Couldn't change the tray image")
+      }
+    } else {
+      this.setState({
+        data: [],
+        loading: false
+      })
+        // No currency being monitored
+        main.tray.setImage(main.getImage('blank'));
+        main.tray.setTitle(`Empty`)
+
     }
   }
 
