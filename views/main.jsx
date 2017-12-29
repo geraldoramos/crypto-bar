@@ -37,7 +37,6 @@ export default class Main extends React.Component {
     };
 
     this.handleBox = this.handleBox.bind(this)
-    this.handleAppUpdate = this.handleAppUpdate.bind(this)
     this.handlePairAdd = this.handlePairAdd.bind(this)
     this.handlePairDropdownFrom = this.handlePairDropdownFrom.bind(this)
     this.handlePairDropdownTo = this.handlePairDropdownTo.bind(this)
@@ -79,11 +78,6 @@ export default class Main extends React.Component {
 
   handleOpen(url){
     main.open(url)
-  }
-
-  handleAppUpdate(){
-    main.app.relaunch()
-    main.app.exit()
   }
 
   handlePairDropdownFrom(e){
@@ -293,7 +287,7 @@ export default class Main extends React.Component {
     <h2><a onClick={() => this.handleOpen('https://github.com/geraldoramos/crypto-bar')}>Crypto Bar </a> 
     <span className="version">{this.state.version}</span>
     { this.state.updateAvailable ?
-    <span>&nbsp;(<a onClick={this.handleAppUpdate}> Restart to Update</a>)</span> : null}
+    <span>&nbsp;(Restart to Update)</span> : null}
     </h2>
     </div>)
 
