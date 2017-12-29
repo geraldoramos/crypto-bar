@@ -206,6 +206,10 @@ margin: 10px 15px 0px 15px;
 
 }
 
+.currencies-list{
+    overflow: hidden;
+}
+
 
 .currencies-item{
     color: #92A0AA!important;
