@@ -66,8 +66,12 @@
           subs: subscription
         });
 
+        // throttle state updates to prevent performance degradation
+        let throttle = _.throttle(state,5000)
+
         HTTP(selectedCurrencies, Config).then(result => {
           dataBkp = result
+          throttle(Object.assign(dataBkp, data))
         })
 
         // remove previous interval if existing
@@ -79,13 +83,10 @@
         refreshIntervalId = setInterval(() => {
           HTTP(selectedCurrencies, Config).then(result => {
             dataBkp = result
+            throttle(Object.assign(dataBkp, data))
           })
         }, 30000);
 
-        state(Object.assign(dataBkp, data))
-
-        // throttle state updates to prevent performance degradation
-        let throttle = _.throttle(state,5000)
 
         socket.on("m", message => {
            
