@@ -101,7 +101,7 @@ function createWindow() {
   }
 
   // Hidden shortcut for debugging
-  globalShortcut.register('CommandOrControl+Shift+Control+Option+D', () => {
+  globalShortcut.register('CommandOrControl+Shift+Control+Option+Space+D+F', () => {
     app.dock.show();
     mainWindow.webContents.openDevTools()
   })
