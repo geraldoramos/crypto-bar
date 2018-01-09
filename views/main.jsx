@@ -71,7 +71,7 @@ export default class Main extends React.Component {
     })
     main.store.set('preferences', newSettings)
     main.tray.setImage(main.getImage(from));
-    main.tray.setTitle(`${prefix}${formatCurrency(price)}`)
+    main.tray.setTitle(`${prefix}${formatCurrency(price, {minFraction:2, maxFraction: 8})}`)
     this.setState({currentSettings:newSettings,subpage:'main'})
     this.setState({selectedBox:from+to+exchange})
   }
@@ -155,7 +155,7 @@ export default class Main extends React.Component {
         let selectedTray = main.store.get('preferences').currencies.filter(x => x.default)[0] || main.store.get('preferences').currencies[0]
         let trayData = data[selectedTray.from + selectedTray.to + selectedTray.exchange]
         main.tray.setImage(main.getImage(selectedTray.from));
-        main.tray.setTitle(`${trayData.prefix}${formatCurrency(trayData.price)}`)
+        main.tray.setTitle(`${trayData.prefix}${formatCurrency(trayData.price, {minFraction:2, maxFraction: 8})}`)
       } catch (error) {
         console.log("Couldn't change the tray image")
       }
@@ -316,7 +316,7 @@ export default class Main extends React.Component {
             this.handleBox(x.priceData.from, x.priceData.to, x.priceData.price, x.priceData.exchange, x.priceData.prefix)}>
             <div className="currency">{x.priceData.from} <span className="exchange">
             ({x.priceData.exchangeFallback || x.priceData.exchange})</span> </div>
-            <div className="price">{x.priceData.prefix}{formatCurrency(x.priceData.price)}&nbsp;
+            <div className="price">{x.priceData.prefix}{formatCurrency(x.priceData.price, {minFraction:2, maxFraction: 8})}&nbsp;
             {x.priceData.volume24h==0 ? null : priceDirection(x.priceData.flag)}</div>
             <div className="volume">
             {x.priceData.volume24h==0?'no volume data':`V:${formatCurrency(x.priceData.volume24h)}`}</div>
