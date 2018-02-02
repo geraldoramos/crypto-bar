@@ -5767,6 +5767,9 @@
   }, {
     "label": "BRD",
     "symbol": "BRD"
+  }, {
+    "label": "OCN",
+    "symbol": "OCN"
   }],
   "currencies": [  {
     "prefix": "ج.م",
