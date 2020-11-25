@@ -1,3 +1,4 @@
+# NOTE: I'm not maintaining this project anymore, if anyone wants to become a maintainer, please reach out!
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/geraldoramos/crypto-bar/issues)
 <a target="_blank" href="https://gitter.im/crypto-bar/Lobby"><img src="https://badges.gitter.im/gitterHQ/gitter.png"></a>
 # <a target="_blank" href="https://www.producthunt.com/posts/crypto-bar"><img src="https://s3.amazonaws.com/cryptobar/phbadge.png" width="35px" height="35px"></img></a> Crypto Bar
